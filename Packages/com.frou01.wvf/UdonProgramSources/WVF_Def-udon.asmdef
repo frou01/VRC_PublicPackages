@@ -1,0 +1,19 @@
+{
+    "name": "WVF_Def-udon",
+    "references": [
+        "VRC.Udon",
+        "UdonSharp.Runtime",
+        "Cinemachine",
+        "Unity.TextMeshPro",
+        "Frou01UtilAssembly"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
