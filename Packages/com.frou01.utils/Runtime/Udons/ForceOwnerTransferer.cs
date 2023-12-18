@@ -6,7 +6,7 @@ using VRC.Udon;
 
 public class ForceOwnerTransferer : UdonSharpBehaviour
 {
-    GameObject targetObject;
+    [SerializeField]GameObject targetObject;
     void Start()
     {
         
