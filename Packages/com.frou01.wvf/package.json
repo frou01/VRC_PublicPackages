@@ -1,17 +1,16 @@
 {
-    "name": "com.frou01.wvf",
-    "displayName": "Walkable Vehicle Floor",
-    "version": "3.5.4",
-    "unity": "2019.4",
-    "description": "Controllable Stations prefab for walking inside vehicle on VRChat",
-    "dependencies": {},
-    "vpmDependencies": {
-      "com.vrchat.worlds": "3.4.1"
-    },
-    "author": {
-      "name": "frou01",
-      "email": "frou01stg44hurutaka@gmail.com"
-    },
-    "legacyFolders": {},
-    "legacyFiles": {}
+  "name": "com.frou01.wvf",
+  "displayName": "Walkable Vehicle Floor",
+  "version": "3.5.6",
+  "unity": "2019.4",
+  "description": "Controllable Stations prefab for walking inside vehicle on VRChat",
+  "vpmDependencies": {
+    "com.vrchat.worlds": "3.4.1"
+  },
+  "author": {
+    "name": "frou01",
+    "email": "frou01stg44hurutaka@gmail.com"
+  },
+  "legacyFolders": {},
+  "legacyFiles": {}
 }

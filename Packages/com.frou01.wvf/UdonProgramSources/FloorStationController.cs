@@ -34,7 +34,7 @@ public class FloorStationController : UdonSharpBehaviour
 
     void Start()
     {
-        currentControllerCenter = preset_InVehicleController.center;
+        local_InitialControllerCenter = preset_InVehicleController.center;
         loacl_PlayerChaserTransform = preset_Manager.preset_playerChaser.transform;
     }
     public void startSeating(CatchCollider_Vehicle vehicle_catchCollider, int vehicleID)
@@ -60,7 +60,7 @@ public class FloorStationController : UdonSharpBehaviour
 
         preset_InVehicleController.gameObject.transform.localRotation = preset_sittingPosition.localRotation = temp;
         preset_sittingPosition.up = Vector3.up;
-        preset_InVehicleController.center = currentControllerCenter;
+        preset_InVehicleController.center = local_InitialControllerCenter;
 
         local_inVehicleCollider = preset_Manager.preset_inVehicleCollider[vehicleID];
         local_inVehicleCollider.SetActive(true);
@@ -75,7 +75,7 @@ public class FloorStationController : UdonSharpBehaviour
     VRCPlayerApi.TrackingData trackingData;
     VRCPlayerApi playerApi;
 
-    Vector3 currentControllerCenter;
+    Vector3 local_InitialControllerCenter;
     Vector3 movedByRotation;
     Vector3 ControllerToHead;
 
@@ -108,25 +108,14 @@ public class FloorStationController : UdonSharpBehaviour
                 }
                 trackingData = playerApi.GetTrackingData(VRCPlayerApi.TrackingDataType.Head);
                 ControllerToHead = local_vehicleObject.transform.InverseTransformPoint(trackingData.position) - preset_InVehicleController.transform.localPosition;
+                ControllerToHead = Quaternion.Inverse(preset_InVehicleController.transform.localRotation) * ControllerToHead;
                 ControllerToHead.y = 0;
-                preset_InVehicleController.center = currentControllerCenter + Quaternion.Inverse(preset_InVehicleController.transform.localRotation) * ControllerToHead;
+                preset_InVehicleController.center = local_InitialControllerCenter + ControllerToHead;
                 if (local_controlRollInput != 0)
                 {
                     preset_InVehicleController.transform.Rotate(preset_InVehicleController.transform.up, local_controlRollInput * 180 * Time.deltaTime);
                 }
                 if (resetRolling) preset_InVehicleController.transform.localRotation = Quaternion.Euler(0, preset_InVehicleController.transform.localRotation.eulerAngles.y, 0);
-                Quaternion proxyQuat = (Quaternion.Inverse(local_vehicleObject.transform.rotation) * trackingData.rotation);
-                proxyQuat = Quaternion.Euler(0, proxyQuat.eulerAngles.y, 0);
-                local_moveVelocity.x = 0;
-                local_moveVelocity.z = 0;
-                local_moveVelocity += proxyQuat *
-                    local_controlMoveInput;
-                local_moveVelocity.Normalize();
-                if (!preset_InVehicleController.isGrounded) local_moveVelocity.y += -9.8f * Time.deltaTime;
-                else local_moveVelocity.y = 0;
-                local_moveVelocity.y *= 0.9f;
-
-                if (!resetRolling) preset_InVehicleController.Move(movedByRotation + local_moveVelocity * Time.deltaTime);
 
                 resetRolling = false;
                 position = preset_InVehicleController.transform.localPosition;
@@ -160,6 +149,32 @@ public class FloorStationController : UdonSharpBehaviour
         }
         preset_sittingPosition.localPosition = position;
         preset_sittingPosition.localRotation = rotation;
+    }
+    public void FixedUpdate()
+    {
+        if (synced_Using && local_vehicleObject != null)
+        {
+            if (!Utilities.IsValid(playerApi)) return;
+            if (Networking.IsOwner(this.gameObject))
+            {
+                if (!Networking.IsOwner(preset_InVehicleController.gameObject))
+                {
+                    Networking.SetOwner(playerApi, preset_InVehicleController.gameObject);
+                }
+                Quaternion proxyQuat = (Quaternion.Inverse(local_vehicleObject.transform.rotation) * trackingData.rotation);
+                proxyQuat = Quaternion.Euler(0, proxyQuat.eulerAngles.y, 0);
+                local_moveVelocity.x = 0;
+                local_moveVelocity.z = 0;
+                Vector3 applyingControl = proxyQuat *
+                    local_controlMoveInput;
+                local_moveVelocity += applyingControl;
+                local_moveVelocity.Normalize();
+                if (!preset_InVehicleController.isGrounded) local_moveVelocity.y += -9.8f * Time.fixedDeltaTime;
+                else local_moveVelocity.y = 0;
+                local_moveVelocity.y *= 0.9f;
+                if (!resetRolling) preset_InVehicleController.Move(movedByRotation + local_moveVelocity * Time.fixedDeltaTime);
+            }
+        }
     }
     public void restorePosition()
     {
