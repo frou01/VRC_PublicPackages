@@ -50,9 +50,13 @@ namespace frou01.GrabController
             controllerTransform.localRotation = Quaternion.identity;
             controllerTransform.Rotate(0, controllerPosition, 0);
         }
+        void OnDrawGizmos()
+        {
+        }
 
         void OnDrawGizmosSelected()
         {
+            Gizmos.color = new Color(1, 1, 1);
             foreach (float segment_point in segment_points)
                 Gizmos.DrawLine(controllerTransform.position, controllerTransform.position + controllerTransform.parent.rotation * Quaternion.Euler(0, segment_point, 0) * (new Vector3(0, 0, 1)));
             Gizmos.color = new Color(1,0,0);
