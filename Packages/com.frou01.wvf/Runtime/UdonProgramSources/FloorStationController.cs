@@ -113,7 +113,7 @@ public class FloorStationController : UdonSharpBehaviour
                 preset_InVehicleController.center = local_InitialControllerCenter + ControllerToHead;
                 if (local_controlRollInput != 0)
                 {
-                    preset_InVehicleController.transform.Rotate(preset_InVehicleController.transform.up, local_controlRollInput * 180 * Time.deltaTime);
+                    preset_InVehicleController.transform.RotateAround(local_vehicleObject.transform.InverseTransformPoint(trackingData.position), preset_InVehicleController.transform.up, local_controlRollInput * 180 * Time.deltaTime);
                 }
                 if (resetRolling) preset_InVehicleController.transform.localRotation = Quaternion.Euler(0, preset_InVehicleController.transform.localRotation.eulerAngles.y, 0);
 

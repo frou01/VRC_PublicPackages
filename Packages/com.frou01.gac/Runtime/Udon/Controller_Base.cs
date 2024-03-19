@@ -80,6 +80,8 @@ public class Controller_Base : UdonSharpBehaviour
     bool hasSegmentArray;
     protected VRCPlayerApi.TrackingData trackingData;
 
+    [System.NonSerialized]public bool locked;
+
     void Start()
     {
         cachedTransform = transform;
@@ -139,13 +141,13 @@ public class Controller_Base : UdonSharpBehaviour
                 }
             }
             currentNormalizePosition = (leverPosition_temp - segment_points[currentSegment]) / (segment_points[currentSegment + 1] - segment_points[currentSegment]);
-            if (currentNormalizePosition != prevNormalizePosition && hasNormalizedPosition)
+            if (hasNormalizedPosition)
             {
                 TargetAnimator.SetFloat(normalizedPositionParamaterID, currentNormalizePosition);
                 foreach(Animator Ananimator in MultiTargetAnimators) Ananimator.SetFloat(normalizedPositionParamaterID, currentNormalizePosition);
                 Local_isUpdated = true;
             }
-            if (currentSegment != prevSegment && hasSegments)
+            if (hasSegments)
             {
                 TargetAnimator.SetInteger(segmentsParamaterID, currentSegment);
                 foreach (Animator Ananimator in MultiTargetAnimators) Ananimator.SetInteger(segmentsParamaterID, currentSegment);
@@ -170,9 +172,12 @@ public class Controller_Base : UdonSharpBehaviour
     }
     public override void OnPickup()
     {
-        this.enabled = true;
-        onPick = true;
-        isPicked = true;
+        if (!locked)
+        {
+            this.enabled = true;
+            onPick = true;
+            isPicked = true;
+        }
     }
     public override void OnDrop()
     {
@@ -210,6 +215,11 @@ public class Controller_Base : UdonSharpBehaviour
                 SinceLastRequest = 0;
                 netWork_Updating = false;
                 RequestSerialization();
+            }
+            if (locked)
+            {
+                isPicked = false;
+                onPick = false;
             }
         }
         if (isPicked)
@@ -326,6 +336,71 @@ public class Controller_Base : UdonSharpBehaviour
         fromActiveTime = 0;
     }
 
+    public void SetPosition(float target)
+    {
+        if (Networking.IsOwner(gameObject))
+        {
+            Networking.SetOwner(Networking.LocalPlayer, gameObject);
+        }
+        controllerPosition = target;
+        if (hasSegmentArray)
+        {
+            prevNormalizePosition = currentNormalizePosition;
+            while (true)
+            {
+                if (segment_points[currentSegment] > controllerPosition)
+                {
+                    if (currentSegment > 0)
+                    {
+                        if (isowner) currentSegment--;
+                    }
+                    else
+                    {
+                        controllerPosition = segment_points[currentSegment];
+                        break;
+                    }
+                }else
+                if (segment_points[currentSegment + 1] < controllerPosition)
+                {
+                    if (currentSegment + 2 < segment_points.Length)
+                    {
+                        if (isowner) currentSegment++;
+                    }
+                    else
+                    {
+                        controllerPosition = segment_points[currentSegment + 1];
+                        break;
+                    }
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            currentNormalizePosition = (controllerPosition - segment_points[currentSegment]) / (segment_points[currentSegment + 1] - segment_points[currentSegment]);
+            if (currentNormalizePosition != prevNormalizePosition && hasNormalizedPosition)
+            {
+                TargetAnimator.SetFloat(normalizedPositionParamaterID, currentNormalizePosition);
+                foreach (Animator Ananimator in MultiTargetAnimators) Ananimator.SetFloat(normalizedPositionParamaterID, currentNormalizePosition);
+                Local_isUpdated = true;
+            }
+            if (currentSegment != prevSegment && hasSegments)
+            {
+                TargetAnimator.SetInteger(segmentsParamaterID, currentSegment);
+                foreach (Animator Ananimator in MultiTargetAnimators) Ananimator.SetInteger(segmentsParamaterID, currentSegment);
+                Local_isUpdated = true;
+            }
+            prevSegment = currentSegment;
+            prevControllerPosition = controllerPosition;
+        }
+        if (!isAnimatorControllPosition && positionUpdated && hasPosition)
+        {
+            TargetAnimator.SetFloat(positionParamaterID, controllerPosition);
+            foreach (Animator Ananimator in MultiTargetAnimators) Ananimator.SetFloat(positionParamaterID, controllerPosition);
+        }
+        ApplyToTransform();
+    }
     protected virtual void onPicked()
     {
     }
@@ -351,13 +426,25 @@ public class Controller_Base : UdonSharpBehaviour
         //Debug.Log("debug_recieved");
         this.enabled = true;
         TargetAnimator.enabled = true;
-        if (hasNormalizedPosition) TargetAnimator.SetFloat(normalizedPositionParamaterID, currentNormalizePosition);
-        if (hasSegments) TargetAnimator.SetInteger(segmentsParamaterID, currentSegment);
+        if (hasNormalizedPosition)
+        {
+            TargetAnimator.SetFloat(normalizedPositionParamaterID, currentNormalizePosition);
+            foreach (Animator Ananimator in MultiTargetAnimators) Ananimator.SetFloat(normalizedPositionParamaterID, currentNormalizePosition);
+        }
+        if (hasSegments)
+        {
+            TargetAnimator.SetInteger(segmentsParamaterID, currentSegment);
+            foreach (Animator Ananimator in MultiTargetAnimators) Ananimator.SetInteger(segmentsParamaterID, currentSegment);
+        }
         if (hasPosition && !isAnimatorControllPosition)
+        {
             TargetAnimator.SetFloat(positionParamaterID, controllerPosition);
+            foreach (Animator Ananimator in MultiTargetAnimators) Ananimator.SetFloat(positionParamaterID, controllerPosition);
+        }
     }
     public override void OnOwnershipTransferred(VRC.SDKBase.VRCPlayerApi player)
     {
         isowner = Networking.IsOwner(gameObject);
+        this.OnDrop();
     }
 }
