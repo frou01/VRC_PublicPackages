@@ -459,12 +459,12 @@ PrefabInstance:
         type: 3}
       propertyPath: HandL
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 8380643950971997627}
     - target: {fileID: 251250824083437308, guid: 3c20332159d0d9f4cbc4ae6382bbc58a,
         type: 3}
       propertyPath: HandR
       value: 
-      objectReference: {fileID: 0}
+      objectReference: {fileID: 7145270759552076717}
     - target: {fileID: 251250824083437308, guid: 3c20332159d0d9f4cbc4ae6382bbc58a,
         type: 3}
       propertyPath: serializationData.Prefab
@@ -568,3 +568,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 45115577ef41a5b4ca741ed302693907, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!4 &8380643950971997627 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 9126514347388103971, guid: 3c20332159d0d9f4cbc4ae6382bbc58a,
+    type: 3}
+  m_PrefabInstance: {fileID: 786409424697991320}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &7145270759552076717 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 7620366351511776053, guid: 3c20332159d0d9f4cbc4ae6382bbc58a,
+    type: 3}
+  m_PrefabInstance: {fileID: 786409424697991320}
+  m_PrefabAsset: {fileID: 0}
