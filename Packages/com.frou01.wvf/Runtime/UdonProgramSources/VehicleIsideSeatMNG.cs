@@ -36,9 +36,8 @@ public class VehicleIsideSeatMNG : UdonSharpBehaviour
         if (local_AllocatedSeat != null)
         {
             Debug.Log("Allocated Seat is " + local_AllocatedSeat.gameObject.name);
-            Networking.SetOwner(Networking.LocalPlayer, local_AllocatedSeat.preset_StationMover.gameObject);
             FloorStationController floorStationController = local_AllocatedSeat.preset_StationMover;
-            if (!local_AllocatedSeat.preset_StationMover.synced_Using)
+            if (!local_AllocatedSeat.preset_StationMover.synced_Using)//disable on auto transfer on riding
             {
                 preset_CatchColliders[VehicleID].DisableInteractive = true;
                 floorStationController.startSeating(preset_CatchColliders[VehicleID], VehicleID);

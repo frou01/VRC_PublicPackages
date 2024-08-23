@@ -12,8 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: FloorStationController Udon C# Program Asset
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 983a9ef5a4ddf464ca120535ffde70f6,
-    type: 2}
+  serializedUdonProgramAsset: {fileID: 11400000, guid: bca7b64377970314b807d26ed8d33436, type: 2}
   udonAssembly: 
   assemblyError: 
   sourceCsScript: {fileID: 11500000, guid: a905c88a698f46545a886ae26b9b9e6b, type: 3}

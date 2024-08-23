@@ -12,8 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: objectSwitch Udon C# Program Asset
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: ee58e6a815fdde84d88720b755646551,
-    type: 2}
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 6648ea92a43911046acc5c13179ba2e3, type: 2}
   udonAssembly: 
   assemblyError: 
   sourceCsScript: {fileID: 11500000, guid: 82a0468c94c2c9c46b80fb7c50757a7d, type: 3}

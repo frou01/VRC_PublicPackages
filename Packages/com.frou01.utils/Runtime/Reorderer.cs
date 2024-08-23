@@ -3,7 +3,7 @@
 using UnityEditor;
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
-using UnityEditor.Experimental.SceneManagement;
+
 using UnityEngine;
 
 //Creative Commons license 0
@@ -17,7 +17,7 @@ public class Reorderer : MonoBehaviour , IPreprocessBuildWithReport
 
     private void Update()
     {
-        PrefabStage stage = PrefabStageUtility.GetCurrentPrefabStage();
+        UnityEditor.SceneManagement.PrefabStage stage = UnityEditor.SceneManagement.PrefabStageUtility.GetCurrentPrefabStage();
         if (stage == null)
         {
             if(transform.parent != null && index < transform.parent.childCount) transform.parent.GetChild(index).SetSiblingIndex(transform.GetSiblingIndex());

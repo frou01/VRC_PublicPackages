@@ -1,0 +1,51 @@
+SmartPickupSharp
+SmartPickup by NEET ENGINEER https://neet-shop.booth.pm/items/2981343
+SmartPickupSharp by InPlanaria https://inplanaria.booth.pm/items/3640206
+
+This program is based on the Udon Graph code "Smart Pickup" by NEET ENIGNEER, which was transcribed by InPlanaria into Udon Sharp with additional functionality.
+
+
+[Terms of Use]
+All data in this distribution asset is
+Redistribution is permitted without charge.
+Modification is allowed.
+Can be incorporated into private or public VRChat worlds.
+No credit is required. however, misrepresentation of the creator is prohibited.
+
+
+[Description].
+Normal Object Sync always synchronizes the position of the object.
+Smart Pickup synchronizes the "relative position of the object to the hand bone when the object is picked up", and makes it look like it follows the hand through local processing.
+As a result, the number of times it is synchronized is low, and it appears to follow the movement of the hand closely.
+
+
+[Notes]
+Only works with Is Kinematic on. (We do not expect the coordinates or rotation to change due to factors other than pickup, such as gravity.)
+
+Originally, in VRChat, the avatar's bone position is not always visible from all players' viewpoints, even if Block, Hide, Fallback, and Quest are not involved.
+Therefore, each player will see the pickup in a different position. This is probably not the right place for a pen.
+If you hold it with a generic avatar or use [U][O][I][K][J][L][mouse wheel] in desktop mode, it will not move smoothly in other people's viewpoints.
+
+
+[How to use]
+1) Place SmartPickupSharp.prepab in the Hierarchy.
+2) Place the model in the SmartPickupSharp/Model child.
+3) Adjust the position and size of the BoxCollider in SmartPickupSharp.
+4) (This item is optional.) Place SmartPickup_ResetSwitch.prefab in the Hierarchy and register the SmartPickup object in the Smart Pickup Obj of the SmartPickup_ResetSwitch's Udon Behaviour.
+
+[About the sample]
+SmartPickupSharp/Example/ExampleScene is a sample configuration. The terms of use for the sample data are the same as for the script itself.
+A) SmartPickupSharp
+   SmartPickupSharp/Example/ExampleScene is a sample configuration for normal use.
+　　
+B) SmartPickupSharp_UdonCustomSample
+   SmartPickupSharp_UdonCustomSample This is a sample that works with another UdonBehaviour.
+
+C) SmartPickupSharp_AnimationToggleSample
+   This is a simple implementation sample that changes the two states with animation.
+
+D) SmartPickup_ResetSwitch
+   This is a sample of a position reset switch.
+
+E) GlowStick (VRC Object Sync)
+   For comparison.
