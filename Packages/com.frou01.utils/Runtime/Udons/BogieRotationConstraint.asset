@@ -12,8 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: BogieRotationConstraint
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: bb18e68f622ee904d8b4575949f51856,
-    type: 2}
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 87e19bd23ac3a3549835692b03d9d172, type: 2}
   udonAssembly: 
   assemblyError: 
   sourceCsScript: {fileID: 11500000, guid: 885747d27b3044c438281e88f538f738, type: 3}
