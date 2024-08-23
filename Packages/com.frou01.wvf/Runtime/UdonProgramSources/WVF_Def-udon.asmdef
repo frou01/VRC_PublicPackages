@@ -1,11 +1,12 @@
 {
     "name": "WVF_Def-udon",
+    "rootNamespace": "",
     "references": [
         "VRC.Udon",
         "UdonSharp.Runtime",
         "Cinemachine",
         "Unity.TextMeshPro",
-        "Frou01UtilAssembly"
+        "Frou01UtilAssembly.Runtime"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],

@@ -62,7 +62,7 @@ MonoBehaviour:
       Data: 3|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: PlayerChaser, Frou01UtilAssembly
+      Data: PlayerChaser, Frou01UtilAssembly.Runtime
     - Name: 
       Entry: 8
       Data: 
