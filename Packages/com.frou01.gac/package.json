@@ -1,8 +1,8 @@
 {
   "name": "com.frou01.gac",
-  "displayName": "Grab Animator Controller",
-  "version": "3.5.9",
-  "unity": "2019.4",
+  "displayName": "frou01.Grab Animator Controller",
+  "version": "4.0.0",
+  "unity": "2022.3",
   "description": "Grabbing Animator controller for VRChat",
   "vpmDependencies": {
     "com.vrchat.worlds": "3.4.1"

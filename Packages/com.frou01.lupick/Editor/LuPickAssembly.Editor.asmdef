@@ -1,0 +1,21 @@
+{
+    "name": "LuPickAssembly.Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:3c1bc1267eab5884ebe7f232c09ee0d9",
+        "GUID:99835874ee819da44948776e0df4ff1d",
+        "GUID:583382a2633f52b43b24e17b8ce11fb8",
+        "GUID:ad4b0ef4d1efc00419f83da212698ebf"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
