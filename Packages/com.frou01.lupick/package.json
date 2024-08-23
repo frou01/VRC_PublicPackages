@@ -1,7 +1,7 @@
 {
   "name": "com.frou01.lupick",
-  "displayName": "LU UdonPickUp",
-  "version": "0.1.0",
+  "displayName": "frou01.LU UdonPickUp",
+  "version": "4.0.0",
   "unity": "2022.3",
   "description": "Udon Controlled Pickup on LateUpdate(no judder on vehicle)",
   "vpmDependencies": {
