@@ -1,3 +1,9 @@
+LateUpdate Pickup
+このアセット群は専ら車両内での使用を前提にLateUpdateと相対位置を用いたピックアップオブジェクトを追加するための物です。
+原案は下にReadMe内容を転載するSmartPickupSharpです。
+コードは書き換わっています。
+
+
 SmartPickupSharp
 SmartPickup by NEET ENGINEER https://neet-shop.booth.pm/items/2981343
 SmartPickupSharp by InPlanaria https://inplanaria.booth.pm/items/3640206
