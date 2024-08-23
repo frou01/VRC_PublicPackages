@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: SPSManager
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: b6ae5460531ab4b419ad6ee87be2b0bf, type: 2}
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 9014cb8e82ba8df489ebfef0e9706571,
+    type: 2}
   udonAssembly: 
   assemblyError: 
   sourceCsScript: {fileID: 11500000, guid: 1191519a4edeca74e90d8d2da998b36d, type: 3}
@@ -61,7 +62,7 @@ MonoBehaviour:
       Data: 3|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: SPSCatcher[], Assembly-CSharp
+      Data: SPSCatcher[], LuPickAssembly.Runtime
     - Name: 
       Entry: 8
       Data: 

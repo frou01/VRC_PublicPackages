@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: ColliderOcclusionPortal
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 9ba6a4307f848bf46b4f3faa802c10f2, type: 2}
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 1a0673672e929974cb199d4ff23499a9,
+    type: 2}
   udonAssembly: 
   assemblyError: 
   sourceCsScript: {fileID: 11500000, guid: 489432927eef53e4086b5fc81255ed2a, type: 3}

@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: PickupDropper
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 2cbbf53fc450b7f4a829c3cba014b6db, type: 2}
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 7495b8531e671704586100f92df87265,
+    type: 2}
   udonAssembly: 
   assemblyError: 
   sourceCsScript: {fileID: 11500000, guid: 40f027ebc62082943976e0897393fceb, type: 3}

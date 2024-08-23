@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: AnimatorSleeper Udon C# Program Asset
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 87f332e69243e0f4899d616c95c2efdd, type: 2}
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 533d44b55b7bb5c4792163795fba5ddb,
+    type: 2}
   udonAssembly: 
   assemblyError: 
   sourceCsScript: {fileID: 11500000, guid: fd88e649918dda347af45549f61180ba, type: 3}
