@@ -12,8 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: OwnerLinker Udon C# Program Asset
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 507cb9e7306778d45b5200a26f5eb117,
-    type: 2}
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 8f8dd822498fa564e825c837cbe74e9e, type: 2}
   udonAssembly: 
   assemblyError: 
   sourceCsScript: {fileID: 11500000, guid: 4bf36d035cfb9214f90256fc0dabc02d, type: 3}
