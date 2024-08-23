@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: ControllerLever_Pickup Udon C# Program Asset
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: c564d081cf4a2ad4a9e4d399c3021a61, type: 2}
+  serializedUdonProgramAsset: {fileID: 11400000, guid: d986878ab5df4b843877fe962417fe14,
+    type: 2}
   udonAssembly: 
   assemblyError: 
   sourceCsScript: {fileID: 11500000, guid: 606a4017b7fe7f44d8e3824fa9d7b0a7, type: 3}

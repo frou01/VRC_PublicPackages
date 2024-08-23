@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: SmartPickupSharpRootChangeable Udon C# Program Asset
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 90b8bf70300da424194fca584da8e175, type: 2}
+  serializedUdonProgramAsset: {fileID: 11400000, guid: f6e13d77b0ff8d54298498447bcd7ead,
+    type: 2}
   udonAssembly: 
   assemblyError: 
   sourceCsScript: {fileID: 11500000, guid: 3fb8971687d5a5940af214ade16e9a90, type: 3}
@@ -61,7 +62,7 @@ MonoBehaviour:
       Data: 3|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: SPSManager, Assembly-CSharp
+      Data: SPSManager, LuPickAssembly.Runtime
     - Name: 
       Entry: 8
       Data: 
@@ -229,7 +230,7 @@ MonoBehaviour:
       Data: 13|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: SPSCatcher, Assembly-CSharp
+      Data: SPSCatcher, LuPickAssembly.Runtime
     - Name: 
       Entry: 8
       Data: 

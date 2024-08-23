@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: VehicleIsideSeatMNG Udon C# Program Asset
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 4bb75970e14f2964da912d0fbfd717b2, type: 2}
+  serializedUdonProgramAsset: {fileID: 11400000, guid: ced52ff5762166b4a902b182d114ea67,
+    type: 2}
   udonAssembly: 
   assemblyError: 
   sourceCsScript: {fileID: 11500000, guid: 44f85f2d9ac3d6045a26505bb80c21a2, type: 3}
@@ -349,7 +350,7 @@ MonoBehaviour:
       Data: 21|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: PlayerChaser, Frou01UtilAssembly
+      Data: PlayerChaser, Frou01UtilAssembly.Runtime
     - Name: 
       Entry: 8
       Data: 

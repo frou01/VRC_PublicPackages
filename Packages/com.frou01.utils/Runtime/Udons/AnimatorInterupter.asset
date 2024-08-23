@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: AnimatorInterupter
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 10c41dba1e7880f4386c9ef5fe8db9e5, type: 2}
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 35d77657c39452046b5445d864056819,
+    type: 2}
   udonAssembly: 
   assemblyError: 
   sourceCsScript: {fileID: 11500000, guid: bedd2ca2c423d1e46ab1971b80ff59c3, type: 3}

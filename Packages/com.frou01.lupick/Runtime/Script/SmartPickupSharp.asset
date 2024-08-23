@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: SmartPickupSharp
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 2f07d10481eb1b94698f22db05d3bb91, type: 2}
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 2f07d10481eb1b94698f22db05d3bb91,
+    type: 2}
   udonAssembly: 
   assemblyError: 
   sourceCsScript: {fileID: 11500000, guid: eca8c5db13f29684b97d00b79b45f08d, type: 3}
@@ -487,7 +488,7 @@ MonoBehaviour:
       Data: 26|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: PlayerChaser, Frou01UtilAssembly
+      Data: PlayerChaser, Frou01UtilAssembly.Runtime
     - Name: 
       Entry: 8
       Data: 

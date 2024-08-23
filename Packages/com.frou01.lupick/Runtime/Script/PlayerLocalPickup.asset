@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: PlayerLocalPickup
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 3927492173f3f0a4a99ce493d0eb0b60, type: 2}
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 177439f1940892e42b8db8ff27d8fa56,
+    type: 2}
   udonAssembly: 
   assemblyError: 
   sourceCsScript: {fileID: 11500000, guid: 614e6c24d864d11418eab268e6328801, type: 3}
@@ -487,7 +488,7 @@ MonoBehaviour:
       Data: 26|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: PlayerChaser, Frou01UtilAssembly
+      Data: PlayerChaser, Frou01UtilAssembly.Runtime
     - Name: 
       Entry: 8
       Data: 

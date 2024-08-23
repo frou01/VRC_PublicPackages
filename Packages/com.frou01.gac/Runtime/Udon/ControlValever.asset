@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: ControlValever
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 64ebb4e0ceda1c147b571db01c61ecf5, type: 2}
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 66652c37d142d2646be8e3f8b3e26dba,
+    type: 2}
   udonAssembly: 
   assemblyError: 
   sourceCsScript: {fileID: 11500000, guid: 9118424dbc886004981382da4865bf53, type: 3}

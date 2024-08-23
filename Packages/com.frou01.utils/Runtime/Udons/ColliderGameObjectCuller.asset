@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: ColliderGameObjectCuller
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: ebd913d0d8ed2754590a2da3ba11d574, type: 2}
+  serializedUdonProgramAsset: {fileID: 11400000, guid: ef429b9b72b976841b720a26ca743e16,
+    type: 2}
   udonAssembly: 
   assemblyError: 
   sourceCsScript: {fileID: 11500000, guid: 3cf88cbd1362df94c8079eee8cacfaf7, type: 3}

@@ -12,7 +12,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: VRRootChaser
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 74f3932f50f93534faeac2637a235a9e, type: 2}
+  serializedUdonProgramAsset: {fileID: 11400000, guid: e2ea60433c1b74e4cb8c2c23cac491f2,
+    type: 2}
   udonAssembly: 
   assemblyError: 
   sourceCsScript: {fileID: 11500000, guid: b9a3d2fc536630342aa0e9100189649b, type: 3}
