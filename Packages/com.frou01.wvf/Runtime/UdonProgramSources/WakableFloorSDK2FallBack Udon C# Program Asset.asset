@@ -12,8 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: WakableFloorSDK2FallBack Udon C# Program Asset
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 0a11f7604fc9f064692280f483460c10,
-    type: 2}
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 3e5400e8ade0a6b488ae38abf339970a, type: 2}
   udonAssembly: 
   assemblyError: 
   sourceCsScript: {fileID: 11500000, guid: 4a53e62a0993a35439081870a5b0a13d, type: 3}
