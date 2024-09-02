@@ -29,7 +29,7 @@ internal class walkableVehicleFloorBuildProcess : IProcessSceneWithReport , IVRC
             Proceed(obj.transform);
         }
         Debug.Log("Processing");
-
+        if (VISM == null) return;
         VISM.transform.localPosition = Vector3.zero;
         VISM.preset_CatchColliders = target.ToArray();
         GameObject[] inVehicleCollider = new GameObject[target.Count];
@@ -84,7 +84,7 @@ internal class walkableVehicleFloorBuildProcess : IProcessSceneWithReport , IVRC
         {
             Proceed(obj.transform);
         }
-
+        if (VISM == null) return true;
         VISM.transform.localPosition = Vector3.zero;
         VISM.preset_CatchColliders = target.ToArray();
         Debug.Log("Processing " + VISM.preset_CatchColliders.ToString());
