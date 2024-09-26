@@ -15,6 +15,14 @@ public class FloorStation_VRCStation : UdonSharpBehaviour
     {
         if(player.isLocal) preset_AttachingStation.PlayerExitBounds_force();
     }
+    public override void OnStationEntered(VRC.SDKBase.VRCPlayerApi player)
+    {
+        if (player.isLocal &&
+            !preset_AttachingStation.synced_Using)
+        {
+            preset_AttachingStation.ReStartSeating();
+        }
+    }
 
     //public void Update()
     //{

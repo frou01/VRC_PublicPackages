@@ -70,6 +70,35 @@ public class FloorStationController : UdonSharpBehaviour
         isSDK2Mode = preset_floorStation.SDK2Fallback;
         RequestSerialization();
     }
+    public void ReStartSeating()
+    {
+        synced_Using = true;
+        this.playerApi = Networking.LocalPlayer;
+        Networking.SetOwner(playerApi, gameObject);
+        Networking.SetOwner(playerApi, preset_InVehicleController.gameObject);
+
+        preset_InVehicleController.enabled = true;
+
+        preset_Constraint.target = local_vehicleObject.transform;
+        preset_Constraint.Activate();
+        loacl_PlayerChaserTransform.parent = local_vehicleObject.transform;
+        preset_Manager.preset_playerChaser.PlayerPositionScriptControlMode = true;
+        preset_InVehicleController.gameObject.transform.localPosition = preset_sittingPosition.localPosition = local_vehicleObject.transform.InverseTransformPoint(playerApi.GetPosition());
+        Vector3 PlayerLook = playerApi.GetRotation() * Vector3.forward;
+        Quaternion temp = playerApi.GetRotation() * Quaternion.Inverse(local_vehicleObject.transform.rotation);
+        resetRolling = true;
+
+        preset_InVehicleController.gameObject.transform.localRotation = preset_sittingPosition.localRotation = temp;
+        preset_sittingPosition.up = Vector3.up;
+        preset_InVehicleController.center = local_InitialControllerCenter;
+
+        local_inVehicleCollider.SetActive(true);
+        position = preset_InVehicleController.transform.localPosition;
+        rotation = preset_InVehicleController.transform.localRotation;
+
+        isSDK2Mode = preset_floorStation.SDK2Fallback;
+        RequestSerialization();
+    }
 
     bool resetRolling = false;
     VRCPlayerApi.TrackingData trackingData;
