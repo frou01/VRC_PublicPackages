@@ -7,102 +7,87 @@ using VRC.Udon;
 
 public class FloorStationController : UdonSharpBehaviour
 {
-    public VehicleIsideSeatMNG preset_Manager;
+    public VehicleInSideSeatMNG preset_Manager;
 
+    private PlayerChaser loacl_PlayerChaser;
     private Transform loacl_PlayerChaserTransform;
+    private CharacterController local_InVehicleController;
 
-    public VRCStation preset_StationBody;
-    public UdonParentConstraint preset_Constraint;
-    public Transform preset_sittingPosition;
+    private VRCStation local_StationBody;
+    public Transform preset_sittingTransform;
     public Transform preset_exit___Position;
-    public CharacterController preset_InVehicleController;
 
     public Vector3 local_controlMoveInput = new Vector3(0,0,0);
     private Vector3 local_moveVelocity = new Vector3(0,0,0);
     private float local_controlRollInput;
-    private GameObject local_vehicleObject;
+    private GameObject local_VehicleObject;
     private GameObject local_inVehicleCollider;
     private CatchCollider_Vehicle local_catchCollider;
+    VRCPlayerApi.TrackingData local_trackingData;
+    VRCPlayerApi local_playerApi;
     [System.NonSerialized] [UdonSynced(UdonSyncMode.None)] public bool synced_Using;
-    public bool local_StationInBounds;
-
-    public FloorStation preset_floorStation;
 
     public bool isSDK2Mode;
     public Animator seatedSetter;
 
+    bool tempFlag_resetRolling = false;
+
 
     void Start()
     {
-        local_InitialControllerCenter = preset_InVehicleController.center;
-        loacl_PlayerChaserTransform = preset_Manager.preset_playerChaser.transform;
+        local_InVehicleController = GetComponent<CharacterController>();
+        local_StationBody = GetComponent<VRCStation>();
+        local_InitialControllerCenter = local_InVehicleController.center;
+        loacl_PlayerChaser = preset_Manager.preset_playerChaser;
+        loacl_PlayerChaserTransform = loacl_PlayerChaser.transform;
     }
-    public void startSeating(CatchCollider_Vehicle vehicle_catchCollider, int vehicleID)
+    public void startSeating(int vehicleID)
     {
-        local_catchCollider = vehicle_catchCollider;
+        GetVehicleData(vehicleID);
+
+        startSeating();
+    }
+
+    private void GetVehicleData(int vehicleID)
+    {
+        if (vehicleID < 0) return;
+        local_catchCollider = preset_Manager.preset_CatchColliders[vehicleID];
+        local_VehicleObject = local_catchCollider.vehicleObject;
+        local_inVehicleCollider = local_catchCollider.inVehicleCollider;
         global_targetVehicleID = vehicleID;
-        synced_Using = true;
-        local_vehicleObject = vehicle_catchCollider.vehicleObject;
-        this.playerApi = Networking.LocalPlayer;
-        Networking.SetOwner(playerApi, gameObject);
-        Networking.SetOwner(playerApi, preset_InVehicleController.gameObject);
 
-        preset_InVehicleController.enabled = true;  
-        
-        preset_Constraint.target = local_vehicleObject.transform;
-        preset_Constraint.Activate();
-        loacl_PlayerChaserTransform.parent = local_vehicleObject.transform;
-        preset_Manager.preset_playerChaser.PlayerPositionScriptControlMode = true;
-        preset_InVehicleController.gameObject.transform.localPosition = preset_sittingPosition.localPosition = local_vehicleObject.transform.InverseTransformPoint(playerApi.GetPosition());
-        Vector3 PlayerLook = playerApi.GetRotation() * Vector3.forward;
-        Quaternion temp = playerApi.GetRotation() * Quaternion.Inverse(local_vehicleObject.transform.rotation);
-        resetRolling = true;
-
-        preset_InVehicleController.gameObject.transform.localRotation = preset_sittingPosition.localRotation = temp;
-        preset_sittingPosition.up = Vector3.up;
-        preset_InVehicleController.center = local_InitialControllerCenter;
-
-        local_inVehicleCollider = preset_Manager.preset_inVehicleCollider[vehicleID];
-        local_inVehicleCollider.SetActive(true);
-        position = preset_InVehicleController.transform.localPosition;
-        rotation = preset_InVehicleController.transform.localRotation;
-
-        isSDK2Mode = preset_floorStation.SDK2Fallback;
-        RequestSerialization();
     }
-    public void ReStartSeating()
+    public void startSeating()
     {
-        synced_Using = true;
-        this.playerApi = Networking.LocalPlayer;
-        Networking.SetOwner(playerApi, gameObject);
-        Networking.SetOwner(playerApi, preset_InVehicleController.gameObject);
 
-        preset_InVehicleController.enabled = true;
 
-        preset_Constraint.target = local_vehicleObject.transform;
-        preset_Constraint.Activate();
-        loacl_PlayerChaserTransform.parent = local_vehicleObject.transform;
-        preset_Manager.preset_playerChaser.PlayerPositionScriptControlMode = true;
-        preset_InVehicleController.gameObject.transform.localPosition = preset_sittingPosition.localPosition = local_vehicleObject.transform.InverseTransformPoint(playerApi.GetPosition());
-        Vector3 PlayerLook = playerApi.GetRotation() * Vector3.forward;
-        Quaternion temp = playerApi.GetRotation() * Quaternion.Inverse(local_vehicleObject.transform.rotation);
-        resetRolling = true;
+        this.local_playerApi = Networking.LocalPlayer;
+        Networking.SetOwner(local_playerApi, gameObject);
 
-        preset_InVehicleController.gameObject.transform.localRotation = preset_sittingPosition.localRotation = temp;
-        preset_sittingPosition.up = Vector3.up;
-        preset_InVehicleController.center = local_InitialControllerCenter;
-
+        //setUp Hierarchy
+        preset_sittingTransform.parent = loacl_PlayerChaserTransform.parent = local_VehicleObject.transform;
+        local_InVehicleController.enabled = true;
         local_inVehicleCollider.SetActive(true);
-        position = preset_InVehicleController.transform.localPosition;
-        rotation = preset_InVehicleController.transform.localRotation;
 
-        isSDK2Mode = preset_floorStation.SDK2Fallback;
+        //setUp Position/Rotation
+        loacl_PlayerChaser.PlayerPositionScriptControlMode = true;
+        preset_sittingTransform.localPosition = local_InVehicleController.gameObject.transform.localPosition = local_VehicleObject.transform.InverseTransformPoint(local_playerApi.GetPosition());
+        Quaternion temp = local_playerApi.GetRotation() * Quaternion.Inverse(local_VehicleObject.transform.rotation);
+        tempFlag_resetRolling = true;
+        preset_sittingTransform.localRotation = local_InVehicleController.gameObject.transform.localRotation = temp;
+        preset_sittingTransform.up = Vector3.up;
+
+        //Reset_Controller Center
+        local_InVehicleController.center = local_InitialControllerCenter;
+
+        //Set SyncParam
+        position = transform.localPosition;
+        rotation = transform.localRotation;
+        synced_Using = true;
+        local_StationBody.UseStation(local_playerApi);
         RequestSerialization();
     }
 
-    bool resetRolling = false;
-    VRCPlayerApi.TrackingData trackingData;
-    VRCPlayerApi playerApi;
 
     Vector3 local_InitialControllerCenter;
     Vector3 movedByRotation;
@@ -112,6 +97,8 @@ public class FloorStationController : UdonSharpBehaviour
     [UdonSynced(UdonSyncMode.None)] public int global_targetVehicleID;
     [UdonSynced(UdonSyncMode.None)] public Vector3 syncedPosition;
     [UdonSynced(UdonSyncMode.None)] public Quaternion syncedRotation;
+    [UdonSynced(UdonSyncMode.None)] public int AllocatePlayer = -1;
+    [UdonSynced(UdonSyncMode.None)] public bool SDK2Fallback = false;
 
     public Vector3 prevSyncedPosition;
     public Quaternion prevSyncedRotation;
@@ -125,39 +112,27 @@ public class FloorStationController : UdonSharpBehaviour
     public void LateUpdate()
     {
         if (synced_targetVehicleID != global_targetVehicleID) excuteSync = true;
-        if (synced_Using && local_vehicleObject != null)
+        if (synced_Using && local_VehicleObject != null)
         {
-            if (!Utilities.IsValid(playerApi)) return;
-            preset_StationBody.UseStation(playerApi);
             if (Networking.IsOwner(this.gameObject))
             {
-                if (!Networking.IsOwner(preset_InVehicleController.gameObject))
-                {
-                    Networking.SetOwner(playerApi, preset_InVehicleController.gameObject);
-                }
-                trackingData = playerApi.GetTrackingData(VRCPlayerApi.TrackingDataType.Head);
-                ControllerToHead = local_vehicleObject.transform.InverseTransformPoint(trackingData.position) - preset_InVehicleController.transform.localPosition;
-                ControllerToHead = Quaternion.Inverse(preset_InVehicleController.transform.localRotation) * ControllerToHead;
+                preset_sittingTransform.localPosition = loacl_PlayerChaserTransform.localPosition = position = transform.localPosition;
+                local_trackingData = local_playerApi.GetTrackingData(VRCPlayerApi.TrackingDataType.Head);
+                ControllerToHead = local_VehicleObject.transform.InverseTransformPoint(local_trackingData.position) - transform.localPosition;
+                ControllerToHead = Quaternion.Inverse(transform.localRotation) * ControllerToHead;
                 ControllerToHead.y = 0;
-                preset_InVehicleController.center = local_InitialControllerCenter + ControllerToHead;
+                local_InVehicleController.center = local_InitialControllerCenter + ControllerToHead;
+
                 if (local_controlRollInput != 0)
                 {
-                    preset_InVehicleController.transform.RotateAround(local_vehicleObject.transform.InverseTransformPoint(trackingData.position), preset_InVehicleController.transform.up, local_controlRollInput * 180 * Time.deltaTime);
+                    transform.RotateAround(local_VehicleObject.transform.InverseTransformPoint(local_trackingData.position), transform.up, local_controlRollInput * 180 * Time.deltaTime);
                 }
-                if (resetRolling) preset_InVehicleController.transform.localRotation = Quaternion.Euler(0, preset_InVehicleController.transform.localRotation.eulerAngles.y, 0);
+                if (tempFlag_resetRolling) transform.localRotation = Quaternion.Euler(0, transform.localRotation.eulerAngles.y, 0);
+                tempFlag_resetRolling = false;
 
-                resetRolling = false;
-                position = preset_InVehicleController.transform.localPosition;
-                rotation = preset_InVehicleController.transform.localRotation;
-                if(position != syncedPosition || rotation != syncedRotation) excuteSync = true;
-                //if (!playerApi.IsPlayerGrounded())
-                //{
-                //    local_restorePos = playerApi.GetPosition();
-                //    playerApi.TeleportTo(new Vector3(0,0,0), playerApi.GetRotation());
-                //    this.SendCustomEventDelayedFrames(nameof(restorePosition), 2);
-                //}
-                loacl_PlayerChaserTransform.localPosition = position;
-                loacl_PlayerChaserTransform.localRotation = rotation;
+                preset_sittingTransform.localRotation = loacl_PlayerChaserTransform.localRotation = rotation = transform.localRotation;
+
+                if (position != syncedPosition || rotation != syncedRotation) excuteSync = true;
             }
         }
         if (!Networking.IsOwner(this.gameObject))
@@ -165,6 +140,8 @@ public class FloorStationController : UdonSharpBehaviour
             FromLastExcuteSync += Time.deltaTime;
             position = Vector3.Lerp(prevSyncedPosition, syncedPosition, FromLastExcuteSync / syncInterval);
             rotation = Quaternion.Slerp(prevSyncedRotation, syncedRotation, FromLastExcuteSync / syncInterval);
+            preset_sittingTransform.localPosition = transform.localPosition = position;
+            preset_sittingTransform.localRotation = transform.localRotation = rotation;
         }
         else
         {
@@ -176,21 +153,19 @@ public class FloorStationController : UdonSharpBehaviour
                 RequestSerialization();
             }
         }
-        preset_sittingPosition.localPosition = position;
-        preset_sittingPosition.localRotation = rotation;
     }
     public void FixedUpdate()
     {
-        if (synced_Using && local_vehicleObject != null)
+        if (synced_Using && local_VehicleObject != null)
         {
-            if (!Utilities.IsValid(playerApi)) return;
+            if (!Utilities.IsValid(local_playerApi)) return;
             if (Networking.IsOwner(this.gameObject))
             {
-                if (!Networking.IsOwner(preset_InVehicleController.gameObject))
+                if (!Networking.IsOwner(local_InVehicleController.gameObject))
                 {
-                    Networking.SetOwner(playerApi, preset_InVehicleController.gameObject);
+                    Networking.SetOwner(local_playerApi, local_InVehicleController.gameObject);
                 }
-                Quaternion proxyQuat = (Quaternion.Inverse(local_vehicleObject.transform.rotation) * trackingData.rotation);
+                Quaternion proxyQuat = (Quaternion.Inverse(local_VehicleObject.transform.rotation) * local_trackingData.rotation);
                 proxyQuat = Quaternion.Euler(0, proxyQuat.eulerAngles.y, 0);
                 local_moveVelocity.x = 0;
                 local_moveVelocity.z = 0;
@@ -198,16 +173,16 @@ public class FloorStationController : UdonSharpBehaviour
                     local_controlMoveInput;
                 local_moveVelocity += applyingControl;
                 local_moveVelocity.Normalize();
-                if (!preset_InVehicleController.isGrounded) local_moveVelocity.y += -9.8f * Time.fixedDeltaTime;
+                if (!local_InVehicleController.isGrounded) local_moveVelocity.y += -9.8f * Time.fixedDeltaTime;
                 else local_moveVelocity.y = 0;
                 local_moveVelocity.y *= 0.9f;
-                if (!resetRolling) preset_InVehicleController.Move(movedByRotation + local_moveVelocity * Time.fixedDeltaTime);
+                if (!tempFlag_resetRolling) local_InVehicleController.Move(movedByRotation + local_moveVelocity * Time.fixedDeltaTime);
             }
         }
     }
     public void restorePosition()
     {
-        playerApi.TeleportTo(local_restorePos, playerApi.GetRotation());
+        local_playerApi.TeleportTo(local_restorePos, local_playerApi.GetRotation());
     }
 
     public void PlayerExitBounds_force()
@@ -216,16 +191,13 @@ public class FloorStationController : UdonSharpBehaviour
         if (playerApi.isLocal && synced_Using)
         {
             synced_Using = false;
-            //preset_exit___Position.position = playerApi.GetPosition();
-            //preset_exit___Position.rotation = Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head).rotation;
-            //preset_StationBody.ExitStation(playerApi);
-            preset_StationBody.ExitStation(playerApi);
+            local_StationBody.ExitStation(playerApi);
 
-            preset_InVehicleController.enabled = false;
+            local_InVehicleController.enabled = false;
             if(local_inVehicleCollider != null) local_inVehicleCollider.gameObject.SetActive(false);
             loacl_PlayerChaserTransform.parent = null;
-            preset_Manager.preset_playerChaser.PlayerPositionScriptControlMode = false;
-            preset_Manager.preset_playerChaser.PostLateUpdate();
+            loacl_PlayerChaser.PlayerPositionScriptControlMode = false;
+            loacl_PlayerChaser.PostLateUpdate();
         }
     }
     public void PlayerExitBounds(int VehicleID)
@@ -235,23 +207,60 @@ public class FloorStationController : UdonSharpBehaviour
         if (synced_Using && playerApi.isLocal)
         {
             synced_Using = false;
-            //preset_exit___Position.position = playerApi.GetPosition();
-            //preset_exit___Position.rotation = Networking.LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.Head).rotation;
-            preset_StationBody.ExitStation(playerApi);
+            local_StationBody.ExitStation(playerApi);
             
-            preset_InVehicleController.enabled = false;
+            local_InVehicleController.enabled = false;
             if (local_inVehicleCollider != null) local_inVehicleCollider.gameObject.SetActive(false);
             loacl_PlayerChaserTransform.parent = null;
-            preset_Manager.preset_playerChaser.PlayerPositionScriptControlMode = false;
-            preset_Manager.preset_playerChaser.PostLateUpdate();
+            loacl_PlayerChaser.PlayerPositionScriptControlMode = false;
+            loacl_PlayerChaser.PostLateUpdate();
         }
     }
 
     public void SyncParmReset()
     {
         synced_Using = false;
-        global_targetVehicleID = 0;
+        global_targetVehicleID = -1;
         RequestSerialization();
+    }
+
+    public override void OnPreSerialization()
+    {
+        syncedPosition = position;
+        syncedRotation = rotation;
+        synced_targetVehicleID = global_targetVehicleID;
+        FromLastExcuteSync = 0;
+    }
+
+    int prev_targetVehicleID = -1;
+    public override void OnDeserialization()
+    {
+        Debug.Log("syncedPosition " + syncedPosition);
+        Debug.Log("syncedRotation " + syncedRotation);
+        prevSyncedPosition = position;
+        prevSyncedRotation = rotation;
+        if(prev_targetVehicleID != global_targetVehicleID)
+        {
+            prev_targetVehicleID = global_targetVehicleID;
+            GetVehicleData(global_targetVehicleID);
+            preset_sittingTransform.parent = local_VehicleObject.transform;
+            prevSyncedPosition = syncedPosition;
+            prevSyncedRotation = syncedRotation;
+        }
+        FromLastExcuteSync = 0;
+    }
+
+    public override void OnStationExited(VRC.SDKBase.VRCPlayerApi player)
+    {
+        if (player.isLocal) PlayerExitBounds_force();
+    }
+    public override void OnStationEntered(VRC.SDKBase.VRCPlayerApi player)
+    {
+        if (player.isLocal &&
+            !synced_Using)
+        {
+            startSeating();
+        }
     }
 
     public override void InputMoveHorizontal(float value, VRC.Udon.Common.UdonInputEventArgs args)
@@ -269,29 +278,18 @@ public class FloorStationController : UdonSharpBehaviour
     public override void InputLookVertical(float value, VRC.Udon.Common.UdonInputEventArgs args)
     {
     }
-
-    public override void OnPreSerialization()
+    public void changeStationFallback()
     {
-        syncedPosition = position;
-        syncedRotation = rotation;
-        synced_targetVehicleID = global_targetVehicleID;
-        preset_Constraint.target = preset_Manager.preset_CatchColliders[global_targetVehicleID].transform;
-        preset_Constraint.Activate();
-        FromLastExcuteSync = 0;
-    }
-
-    int prev_targetVehicleID = -1;
-    public override void OnDeserialization()
-    {
-        prevSyncedPosition = position;
-        prevSyncedRotation = rotation;
-        if(prev_targetVehicleID != global_targetVehicleID)
+        SDK2Fallback = !SDK2Fallback;
+        seatedSetter.enabled = true;
+        if (SDK2Fallback)
         {
-            preset_Constraint.target = preset_Manager.preset_CatchColliders[global_targetVehicleID].transform;
-            preset_Constraint.Activate();
-            prev_targetVehicleID = global_targetVehicleID;
+            seatedSetter.SetBool("seated", true);
         }
-        FromLastExcuteSync = 0;
+        else
+        {
+            seatedSetter.SetBool("seated", false);
+        }
+        RequestSerialization();
     }
-
 }

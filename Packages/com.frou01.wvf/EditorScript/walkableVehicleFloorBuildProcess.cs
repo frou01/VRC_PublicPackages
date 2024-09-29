@@ -18,23 +18,30 @@ internal class walkableVehicleFloorBuildProcess : IProcessSceneWithReport , IVRC
     //public int PreprocessOrder => 0;
 
 
-    public VehicleIsideSeatMNG VISM;
-    public List<CatchCollider_Vehicle> target = new List<CatchCollider_Vehicle>();
+    public VehicleInSideSeatMNG VISM;
+    public List<CatchCollider_Vehicle> target_CatchCollider_Vehicle = new List<CatchCollider_Vehicle>();
+    public List<FloorStationController> target_FloorStationController = new List<FloorStationController>();
 
     public void OnProcessScene(Scene scene, BuildReport report)
     {
-        target = new List<CatchCollider_Vehicle>();
+        target_CatchCollider_Vehicle = new List<CatchCollider_Vehicle>();
+        target_FloorStationController = new List<FloorStationController>();
         foreach (GameObject obj in scene.GetRootGameObjects())
         {
-            Proceed(obj.transform);
+            Proceed_Search_VehicleInSideSeatMNG(obj.transform);
+        }
+        foreach (GameObject obj in scene.GetRootGameObjects())
+        {
+            Proceed_FloorStation(obj.transform);
         }
         Debug.Log("Processing");
         if (VISM == null) return;
         VISM.transform.localPosition = Vector3.zero;
-        VISM.preset_CatchColliders = target.ToArray();
-        GameObject[] inVehicleCollider = new GameObject[target.Count];
+        VISM.preset_CatchColliders = target_CatchCollider_Vehicle.ToArray();
+        VISM.preset_inVehicleStations = target_FloorStationController.ToArray();
+        GameObject[] inVehicleCollider = new GameObject[target_CatchCollider_Vehicle.Count];
         int index = 0;
-        foreach (CatchCollider_Vehicle CCV in target)
+        foreach (CatchCollider_Vehicle CCV in target_CatchCollider_Vehicle)
         {
             if (CCV == null)
             {
@@ -55,62 +62,48 @@ internal class walkableVehicleFloorBuildProcess : IProcessSceneWithReport , IVRC
         }
         VISM.preset_inVehicleCollider = inVehicleCollider;
     }
-    void Proceed(Transform parent)
+    public bool OnBuildRequested(VRCSDKRequestedBuildType requestedBuildType)
+    {
+        Scene scene = SceneManager.GetActiveScene();
+
+        OnProcessScene(scene, null);
+        return true;
+    }
+
+    void Proceed_Search_VehicleInSideSeatMNG(Transform parent)
     {
         if(parent.gameObject != null)
         {
             if (parent.gameObject.GetComponent<CatchCollider_Vehicle>() != null)
             {
-                target.Add(parent.gameObject.GetComponent<CatchCollider_Vehicle>());
+                target_CatchCollider_Vehicle.Add(parent.gameObject.GetComponent<CatchCollider_Vehicle>());
             }
-            if (parent.gameObject.GetComponent<VehicleIsideSeatMNG>() != null)
+            if (parent.gameObject.GetComponent<VehicleInSideSeatMNG>() != null)
             {
-                VISM = parent.gameObject.GetComponent<VehicleIsideSeatMNG>();
+                VISM = parent.gameObject.GetComponent<VehicleInSideSeatMNG>();
             }
         }
         foreach (Transform obj in parent)
         {
-            Proceed(obj);
+            Proceed_Search_VehicleInSideSeatMNG(obj);
         }
     }
 
-
-    public bool OnBuildRequested(VRCSDKRequestedBuildType requestedBuildType)
+    void Proceed_FloorStation(Transform parent)
     {
-        target = new List<CatchCollider_Vehicle>();
-        Debug.Log("Processing");
-        Scene scene = SceneManager.GetActiveScene();
-        foreach (GameObject obj in scene.GetRootGameObjects())
+        if (parent.gameObject != null)
         {
-            Proceed(obj.transform);
+            if (parent.gameObject.GetComponent<FloorStationController>() != null)
+            {
+                parent.gameObject.GetComponent<FloorStationController>().preset_Manager = VISM;
+                parent.gameObject.transform.parent = VISM.transform;
+                target_FloorStationController.Add(parent.gameObject.GetComponent<FloorStationController>());
+            }
         }
-        if (VISM == null) return true;
-        VISM.transform.localPosition = Vector3.zero;
-        VISM.preset_CatchColliders = target.ToArray();
-        Debug.Log("Processing " + VISM.preset_CatchColliders.ToString());
-        GameObject[] inVehicleCollider = new GameObject[target.Count];
-        int index = 0;
-        foreach (CatchCollider_Vehicle CCV in target)
+        foreach (Transform obj in parent)
         {
-            if (CCV == null)
-            {
-                Debug.Log("Destroyed CatchCollider_Vehicle ");
-                return false;
-            }
-            inVehicleCollider[index] = CCV.inVehicleCollider;
-            if (inVehicleCollider[index] == null)
-            {
-                Debug.Log("Destroyed inVehicleCollider ");
-                return false;
-            }
-            //inVehicleCollider[index].transform.parent = VISM.transform.parent;
-            inVehicleCollider[index].transform.localPosition = Vector3.zero;
-            inVehicleCollider[index].transform.localRotation = Quaternion.identity;
-            inVehicleCollider[index].SetActive(false);
-            index++;
+            Proceed_FloorStation(obj);
         }
-        VISM.preset_inVehicleCollider = inVehicleCollider;
-        return true;
     }
 }
 #endif

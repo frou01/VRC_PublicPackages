@@ -6,7 +6,7 @@ using VRC.Udon;
 
 public class WakableFloorSDK2FallBack : UdonSharpBehaviour
 {
-    public VehicleIsideSeatMNG preset_SeatMNG;
+    public VehicleInSideSeatMNG preset_SeatMNG;
     void Start()
     {
         

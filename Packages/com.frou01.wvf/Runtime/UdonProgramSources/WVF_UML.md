@@ -4,21 +4,23 @@ title: WVF FlowChart
 ---
 
 flowchart TD
-	VehicleIsideSeatMNG.OnPlayerJoined --> VehicleIsideSeatMNG.allocateSeat --> Wait_Loop
-	VehicleIsideSeatMNG.allocateSeat --> CatchCollider.SetLocalSeat
+	FloorInSideSeatMNG.OnPlayerJoined --> FloorInSideSeatMNG.allocateSeat --> Wait_Loop
+	FloorInSideSeatMNG.allocateSeat --> CatchCollider.SetLocalSeat
 	Wait_Loop --> Event_CatchCollider.OnTriggerEnter{CatchCollider.OnTriggerEnter}
-	Event_CatchCollider.OnTriggerEnter{CatchCollider.OnTriggerEnter} -->|NO| Wait_Loop 
+	Event_CatchCollider.OnTriggerEnter -->|NO| Wait_Loop 
 	subgraph "Normal Riding Cycle"
-	Event_CatchCollider.OnTriggerEnter{CatchCollider.OnTriggerEnter} -->|YES| StartFloorLoop[/OnFloorLoop\] --> FloorStation.Control --> 
-	Event_CatchCollider.OnTriggerExit{CatchCollider.OnTriggerExit} -->|NO| RepeatFloorLoop[\OnFloorLoop/]
+	Event_CatchCollider.OnTriggerEnter{CatchCollider.<br>OnTriggerEnter} -->|YES| StartFloorLoop[/OnFloorLoop\] --> FloorStation.Control --> 
+	Event_CatchCollider.OnTriggerExit -->|NO| RepeatFloorLoop[\OnFloorLoop/]
 
-	Event_CatchCollider.OnTriggerExit{CatchCollider.OnTriggerExit} -->|YES| FloorStation.EndSeating
+	Event_CatchCollider.OnTriggerExit{CatchCollider.<br>OnTriggerExit} -->|YES| FloorStation.EndSeating
     end
 
+	FloorStation.OnStationExited --> ExitisOnFloor{on Floor} -->|Yes| FloorStation.EndSeating
+	FloorStation.OnStationEntered --> EnteredisOnFloor{on Floor} -->|No| StartFloorLoop
 	subgraph "ShutingDown Client"
-	VehicleIsideSeatMNG.OnPlayerLeft --> CheckSeating{on Vehicle} --> |YES|FloorStation.EndSeating--> VehicleIsideSeatMNG.deallocateSeat
+	FloorInSideSeatMNG.OnPlayerLeft --> CheckSeating{on Floor} --> |YES|FloorStation.EndSeating--> FloorInSideSeatMNG.deallocateSeat
 	
-	CheckSeating{on Vehicle} --> |No|VehicleIsideSeatMNG.deallocateSeat
+	CheckSeating{on Floor} --> |No|FloorInSideSeatMNG.deallocateSeat
 	
     end
 ```
@@ -28,7 +30,7 @@ title: WVF Class
 ---
 
 classDiagram
-	class VehicleIsideSeatMNG{
+	class FloorInSideSeatMNG{
 		+FloorStation local_AllocatedSeat
 		+FloorStation[] preset_inVehicleStations
 		+AllocationChecker preset_allocationChecker
@@ -43,6 +45,8 @@ classDiagram
 	class FloorStation{
 		+GameObject CurrentInsideCollider
 		+CatchCollider CurrentCatchCollider
+		+OnStationEntered<UdonBehaviour>()
+		+OnStationExited<UdonBehaviour>()
 		+Control()
 		+EndSeating()
 	}

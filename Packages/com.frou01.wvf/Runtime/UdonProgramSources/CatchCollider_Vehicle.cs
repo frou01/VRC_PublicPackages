@@ -6,7 +6,7 @@ using VRC.Udon;
 [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
 public class CatchCollider_Vehicle : UdonSharpBehaviour
 {
-    [System.NonSerialized]public VehicleIsideSeatMNG local_SeatMNG;
+    [System.NonSerialized]public VehicleInSideSeatMNG local_SeatMNG;
 
     public GameObject vehicleObject;
     public GameObject inVehicleCollider;
