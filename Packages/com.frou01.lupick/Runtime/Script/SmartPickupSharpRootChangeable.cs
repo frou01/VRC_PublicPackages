@@ -141,7 +141,7 @@ public class SmartPickupSharpRootChangeable : UdonSharpBehaviour
     bool pickedInit;
     bool dropInit;
     [UdonSynced] bool RightHand;
-    [UdonSynced] private bool isEnabled;
+    [UdonSynced] public bool isEnabled;
 
     [UdonSynced] bool carrying = false;
 
