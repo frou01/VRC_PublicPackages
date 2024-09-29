@@ -221,6 +221,7 @@ public class FloorStationController : UdonSharpBehaviour
     {
         synced_Using = false;
         global_targetVehicleID = -1;
+        AllocatePlayer = -1;
         RequestSerialization();
     }
 
