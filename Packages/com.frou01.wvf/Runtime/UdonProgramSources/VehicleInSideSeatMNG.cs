@@ -41,7 +41,7 @@ public class VehicleInSideSeatMNG : UdonSharpBehaviour
         if (local_AllocatedSeat != null)
         {
             Debug.Log("Allocated Seat is " + local_AllocatedSeat.gameObject.name);
-            local_AllocatedSeat.startSeating(VehicleID);
+            if(!local_AllocatedSeat.synced_Using) local_AllocatedSeat.startSeating(VehicleID);
         }
         else
         {
