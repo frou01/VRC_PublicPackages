@@ -1,26 +1,110 @@
 ```mermaid
 ---
-title: WVF FlowChart
+title: LUPickUp main loop
 ---
 
 flowchart TD
-	StartLoop[/LateUpdateLoop\] --> isInit{is init} -->|YES| isPostInit{is postInit} -->|NO| IsObjectReady{is ObjectReady} -->|YES| PostInit --> EndLoop[\Loop/]
-	isInit{is init} -->|NO| EndLoop
-	IsObjectReady -->|NO| EndLoop
-	Init --> isInit
+	StartLoop[/LateUpdateLoop\] -->
+	isInit{is init}
 
-	isPostInit{is postInit} --> |Yes| isPicked{is Picked} 
+	isInit --NO--> EndLoop
+
+	isInit --YES-->
+	isPostInit{is postInit} --NO-->
+	IsObjectReady{is ObjectReady} --YES-->
+	PostInit[[PostInit]] -->
+	EndLoop[\Loop/]
+
+
+	IsObjectReady --NO-->
+	EndLoop
+
+	Init[[Init]] -->
+	isInit
+
+	isPostInit{is PostInit} --YES-->
+	isPicked{is Picked}
+
+	isPicked --NO-->
+	isDropInit{is DropInit}
+
+	isDropped --YES-->
+	EndLoop
+
+	subgraph "On Drop"
+		
+		isDropInit --NO-->
+		isDropped{isDropped}
+
+		isOwnerOnDrop{isOwner} --NO-->
+		isDropped
+
+		isDropInit --YES-->
+		isOwnerOnDrop
+
+		isOwnerOnDrop --YES-->
+		FetchTrackingDataOnDrop[[Fetch TrackingData]]
+
+		FetchTrackingDataOnDrop -->
+		MoveObjectTransform_ByTrackingDataOnDrop[[Move Object Transform<br> by TrackingData]] -->
+		CalculateOffsetOnPlayerOnDrop[[Calculate Offset<br> On Dropped transform]] -->
+		SetDropInitFlag
+		
+		isDropped --NO-->
+		MoveObjectTransformOnDropped[[Move Object Transform<br> on Dropped transform]] -->
+		SetDroppedFlag
+	end
+
+	SetDropInitFlag -->
+	EndLoop
+
+	SetDroppedFlag -->
+	EndLoop
+
+	isPicked --YES-->
+	FetchBoneDataOnPicked[[Fetch BoneData]]
+	
 	subgraph "On Picked"
-	isPicked -->|YES| UpdateTrackingData[[UpdateTrackingData]] --> UpdateBoneData[[UpdateBoneData]] --> isOwner{isOwner} --> isPickedInit{isPickedInit} --> 
-	CalculatePosition_OnDrop[[On Global <br> Calculate Position]] --> 
-	CalculateOffsetOnHand[[Calculate Offset<br> On Hand]]--> 
-	Sync((sync)) --> isVR{is VR} -->|YES| UpdateObjectTransform_FromTrackingData[[Update Object Transform<br> by TrackingData]] --> CalculateOffsetOnBone[[Calculate Offset<br> On HandBone]]
-	isVR{is VR}-->|NO| DeskTopWalkAround[[DeskTopWalkAround]] --> UpdateObjectTransform_FromTrackingData
-	isOwner -->|NO| UpdateObjectTransform_FromBone[[Update Object Transform<br> by BonePosition]]
+		FetchBoneDataOnPicked -->
+		isOwnerOnPicked{isOwner}
+
+		isOwnerOnPicked --NO-->
+		MoveObjectTransform_FromBone[[Move Object Transform<br> by BonePosition]] -->
+		CalculateOffsetOnBone
+
+		isOwnerOnPicked --YES-->
+		FetchTrackingDataOnPicked[[Fetch TrackingData]] -->
+		isPickedInit{isPickedInit}
+
+		isPickedInit --YES-->
+		MoveObjectTransform_ByTrackingDataOnPickup
+		
+		isPickedInit --NO-->
+		MoveObjectTransformOnPickup[[Move Object Transform<br> on Dropped transform]]
+		subgraph "PickInit"
+			MoveObjectTransformOnPickup -->
+			CalculateOffsetOnHand[[Calculate Offset<br> On Hand]]-->
+			Sync((sync)) -->
+			isVR{is VR}
+			
+			
+			isVR{is VR}--NO-->
+			DeskTopWalkAround[[DeskTopWalkAround]]
+
+    	end
+		isVR --YES-->
+		MoveObjectTransform_ByTrackingDataOnPickup[[Move Object Transform<br> by TrackingData]] -->
+		CalculateOffsetOnBone[[Calculate Offset<br> On HandBone]]
+
+		DeskTopWalkAround -->
+		MoveObjectTransform_ByTrackingDataOnPickup
+		
+
+		
     end
 	CalculateOffsetOnBone --> EndLoop
-	UpdateObjectTransform_FromBone --> EndLoop
-	isPicked -->|NO| dropping/carrying/dropped
+
+
 ```
 ```mermaid
 ---
