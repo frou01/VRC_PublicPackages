@@ -33,6 +33,7 @@ public class CatchCollider_Vehicle : UdonSharpBehaviour
             if (autoCatch)
             {
                 //Debug.Log("Player " + Networking.LocalPlayer.displayName + " Enter Vehicle " + local_Id_OnSeatMNG);
+                DisableInteractive = true;
                 local_SeatMNG.EnterOnVehicle(local_Id_OnSeatMNG);
             }
         }
