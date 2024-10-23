@@ -37,7 +37,7 @@ flowchart TD
 	isDropInit{is DropInit = true} -.YES.->
 	isDropped{isDropped = true}
 	
-	isDropped --NO--> onDropped --> EndLoop
+	isDropped --NO--> onDropped[[onDropped]] --> EndLoop
 
 	isPicked --YES--> 
 	onPicked[[OnPicked]] -->
@@ -45,18 +45,18 @@ flowchart TD
 
 	isOwnerOnDrop --YES--> 
 	isDropInit --NO--> 
-	onDropInit --> EndLoop
+	onDropInit[[onDropInit]] --> EndLoop
 ```
 ```mermaid
 flowchart TD
-	subgraph "On Drop"
+	subgraph "OnDrop"
 		
 
 		MoveObjectTransformOnDropped[[Move Object Transform<br> on Dropped transform]] -->
 		SetDroppedFlag_True
 
 	end
-	subgraph "on DropInit"
+	subgraph "onDropInit"
 
 		FetchTrackingDataOnDrop[[Fetch TrackingData]]
 
@@ -68,8 +68,24 @@ flowchart TD
 		SyncOnDropInit((sync))
 	end
 	
+	subgraph "onPickInit"
+		
+		MoveObjectTransformOnPickup[[Move Object Transform<br> on Parent transform]] -->
+		CalculateOffsetOnHand[[Calculate Offset<br> On Hand]]-->			
+		CalculateOffsetOnBone[[Calculate Offset<br> On HandBone]]-->
+		SyncOnPickInit((sync)) -->
+		isVR{is VR} --YES--> 
+		SetpickInit_True
+		
+		
+		isVR{is VR}--NO-->
+		DeskTopWalkAround[[DeskTopWalkAround]] --> 
+		SetpickInit_True
+		
+		DeskTopWalkAround -."2Sec late".- SyncOnDeskTop((sync))
+	end
 	
-	subgraph "On Picked"
+	subgraph "OnPicked"
 		FetchBoneDataOnPicked[[Fetch BoneData]] -->
 		isOwnerOnPicked{isOwner}
 
@@ -84,30 +100,12 @@ flowchart TD
 		MoveObjectTransform_ByTrackingDataOnPickup
 		
 		ispickInit --NO-->
-		onPickInit[[onPickInit]]
+		onPickInit_[[onPickInit]]
 
-		onPickInit -->
+		onPickInit_ -->
 		MoveObjectTransform_ByTrackingDataOnPickup[[Move Object Transform<br> by TrackingData]]
 
     end
-
-	
-	subgraph "PickInit"
-		
-		MoveObjectTransformOnPickup[[Move Object Transform<br> on Parent transform]] -->
-		CalculateOffsetOnHand[[Calculate Offset<br> On Hand]]-->			
-		CalculateOffsetOnBone[[Calculate Offset<br> On HandBone]]-->
-		SyncOnPickInit((sync)) -->
-		isVR{is VR} --YES--> noAction --> 
-		SetpickInit_True
-		
-		
-		isVR{is VR}--NO-->
-		DeskTopWalkAround[[DeskTopWalkAround]] --> 
-		SetpickInit_True
-		
-		DeskTopWalkAround -."2Sec late".- SyncOnDeskTop((sync))
-	end
 ```
 ```mermaid
 ---
