@@ -8,6 +8,8 @@ using static VRC.SDKBase.VRCPlayerApi;
 
 public class LateUpdatePickUpBase : UdonSharpBehaviour
 {
+//------------------------------------------
+//----------------VARIABLE------------------
     [UdonSynced] Vector3 ObjectLocalPos;
     [UdonSynced] Quaternion ObjectLocalRot;
     [UdonSynced] Vector3 ObjectBoneLocalPos;
@@ -15,43 +17,55 @@ public class LateUpdatePickUpBase : UdonSharpBehaviour
     Vector3 Local_ObjectTrackingLocalPos;
     Quaternion Local_ObjectTrackingLocalRot;
 
-    Transform TransformCache;//transform of this GameObject
-    [SerializeField] Transform CurrentParentTransform;
-    VRCPlayerApi prevOwner;//refer on transfering Ownership
-    VRCPlayerApi ownerPlayer;
-    VRCPlayerApi LocalPlayer;
-
-    private VRC_Pickup Pickup;
-    [SerializeField] bool isLocal = false;//ignore ownership transfer event
     [UdonSynced] bool RightHand;
+    Vector3 HandBonePos;
+    Quaternion HandBoneRot;
+    TrackingData trackingData;
 
-    bool pickedInit;//true on loop after of VRC_Pickup.onpickup(). if false, excute initialize bone local position.
-    [UdonSynced] bool picked;//true on Picked
-    bool dropInit;//true on loop after of VRC_Pickup.ondrop(). if false, excute initialize Object Local position.
-    bool droppedFlag = false;//true on Dropped and after dropInit
+    VRCPlayerApi prevOwner;
+    VRCPlayerApi ownerPlayer;
 
-    bool init = false;//true after initialize
-    bool postInit = false;//true after synce logic enabled
+//----------------CONSTANT------------------
+    VRCPlayerApi LocalPlayer;
+    private VRC_Pickup Pickup;
+    Transform TransformCache;
+    Vector3 First_Pos;
+    Quaternion First_Rot;
+    [SerializeField] bool isLocal;//For None(Local Object Mode)
+//----------------FALGS---------------------
+    bool initFlag = false;
+    bool postInitFrag = false;
+    [UdonSynced] bool pickedFlag = false;
+    bool pickInitFlag = false;
+    bool dropInitFlag = true;
+    bool droppedFlag = true;
+//------------------------------------------
 
-    //refer on Initialize. calculate
-    [SerializeField] Transform InitialParentTransform;
-    Vector3 Initial_Pos;//Local Position on InitialTransform 
-    Quaternion Initial_Rot;//Local Position on InitialTransform
 
-    bool isVR;
-    TrackingData HandTrackingData;
+    float fromUsed = 10;
+
+    void Start()
+    {
+        Pickup = this.GetComponent<VRC_Pickup>();
+        LocalPlayer = Networking.LocalPlayer;
+        TransformCache = this.transform;
+        First_Pos = ObjectLocalPos = TransformCache.localPosition;
+        First_Rot = ObjectLocalRot = TransformCache.localRotation;
+        initFlag = true;
+    }
+
     public override void PostLateUpdate()
     {
-        if (!init)
+        if (!initFlag)
         {
             return;
         }
-        else if (!postInit)
+        else if (!postInitFrag)
         {
             if (Networking.IsObjectReady(gameObject))
             {
-                ownerPlayer = Networking.GetOwner(gameObject);
-                postInit = true;
+                prevOwner = ownerPlayer = Networking.GetOwner(gameObject);
+                postInitFrag = true;
             }
             return;
         }
@@ -67,121 +81,200 @@ public class LateUpdatePickUpBase : UdonSharpBehaviour
         //Desk:TrackingData => BonePosition
         //Desk:GetBonePosition OK
 
-        if (picked)
+        if (pickedFlag)
         {
-            Vector3 HandPos;
-            Quaternion HandRot;
-            if (RightHand)
-            {
-                HandTrackingData = LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.RightHand);
-                HandPos = ownerPlayer.GetBonePosition(HumanBodyBones.RightHand);
-                HandRot = ownerPlayer.GetBoneRotation(HumanBodyBones.RightHand);
-            }
-            else
-            {
-                HandTrackingData = LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.LeftHand);
-                HandPos = ownerPlayer.GetBonePosition(HumanBodyBones.LeftHand);
-                HandRot = ownerPlayer.GetBoneRotation(HumanBodyBones.LeftHand);
-            }
-            if (ownerPlayer == LocalPlayer)
-            {
-                if (!pickedInit)
-                {
-                    OnPicked(HandPos, HandRot, true);
-                }
-                InPickup(HandPos, HandRot, true);
-                updateLocalPosition();
-            }
-            else
-            {
-                InPickup(HandPos, HandRot, false);
-            }
+            onPicked();
         }
-        else if (!dropInit && ownerPlayer == LocalPlayer)
+        else if (!dropInitFlag && ownerPlayer == LocalPlayer)
         {
-            Vector3 HandPos;
-            Quaternion HandRot;
-            if (RightHand)
-            {
-                HandTrackingData = LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.RightHand);
-                HandPos = ownerPlayer.GetBonePosition(HumanBodyBones.RightHand);
-                HandRot = ownerPlayer.GetBoneRotation(HumanBodyBones.RightHand);
-            }
-            else
-            {
-                HandTrackingData = LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.LeftHand);
-                HandPos = ownerPlayer.GetBonePosition(HumanBodyBones.LeftHand);
-                HandRot = ownerPlayer.GetBoneRotation(HumanBodyBones.LeftHand);
-            }
-            movetoHanding(HandPos, HandRot, true);
-            TransformCache.position = HandTrackingData.position + (HandTrackingData.rotation * Local_ObjectTrackingLocalPos);
-            TransformCache.rotation = HandTrackingData.rotation * Local_ObjectTrackingLocalRot;
-
-            ObjectLocalPos = TransformCache.localPosition;
-            ObjectLocalRot = TransformCache.localRotation;
-            dropInit = true;
-            RequestSerialization();
+            onDropInit();
         }
         else if (!droppedFlag)
         {
-            TransformCache.position = (ObjectLocalPos);
-            droppedFlag = true;
+            onDropped();
         }
-        prevOwner = ownerPlayer;
     }
 
-    protected void OnPicked(Vector3 handPos, Quaternion handRot, bool local)
+    protected void onPicked()
     {
-        TransformCache.localRotation = ObjectLocalRot;
-        TransformCache.localPosition = ObjectLocalPos;
-        //Debug.Log("debug track" + trackingData.position);
-        //Debug.Log("debug bonep" + HandPos);
-        //PlayerPos = ownerPlayer.GetPosition();
-        //PlayerRot = trackingData_Origin.rotation;
-        pickedInit = true;
-
-        Local_ObjectTrackingLocalPos = Quaternion.Inverse(HandTrackingData.rotation) * (TransformCache.position - HandTrackingData.position);
-        Local_ObjectTrackingLocalRot = Quaternion.Inverse(HandTrackingData.rotation) * TransformCache.rotation;
-        RequestSerialization();
-        if (!LocalPlayer.IsUserInVR()) SendCustomEventDelayedSeconds(nameof(DeskTopWalkAround), 2);
-    }
-
-    protected void InPickup(Vector3 HandPos, Quaternion HandRot, bool local)
-    {
-        movetoHanding(HandPos, HandRot, local);
-    }
-
-    protected void movetoHanding(Vector3 HandPos, Quaternion HandRot, bool local)
-    {
-        if (local)
+        FetchTrackingData();
+        if (ownerPlayer == LocalPlayer)
         {
-            TransformCache.position = HandTrackingData.position + (HandTrackingData.rotation * Local_ObjectTrackingLocalPos);
-            TransformCache.rotation = HandTrackingData.rotation * Local_ObjectTrackingLocalRot;
-            ObjectBoneLocalPos = Quaternion.Inverse(HandRot) * (TransformCache.position - HandPos);
-            ObjectBoneLocalRot = Quaternion.Inverse(HandRot) * TransformCache.rotation;
+            if (fromUsed < 10) fromUsed += Time.deltaTime;
+            if (!pickInitFlag)
+            {
+                onPickInit();
+            }
+            MoveObjectByTrackingData();
         }
         else
         {
-            TransformCache.position = HandPos + (HandRot * ObjectBoneLocalPos);
-            TransformCache.rotation = HandRot * ObjectBoneLocalRot;
+            MoveObjectByBone();
+        }
+        CalculateOffsetOnTransform();
+    }
+
+    protected void onPickInit()
+    {
+        Debug.Log("debug track" + trackingData.position);
+        Debug.Log("debug bonep" + HandBonePos);
+        MoveObjectByOnTransformOffset();
+        CalculateOffsetOnTrackingData();
+        CalculateOffsetOnBone();
+        RequestSerialization();
+        if (!LocalPlayer.IsUserInVR()) SendCustomEventDelayedSeconds(nameof(DeskTopWalkAround), 2);
+        pickInitFlag = true;
+    }
+
+    protected void onDropInit()
+    {
+        FetchTrackingData();
+        MoveObjectByTrackingData();
+        CalculateOffsetOnTransform();
+
+        dropInitFlag = true;
+        RequestSerialization();
+    }
+    protected void onDropped()
+    {
+        MoveObjectByOnTransformOffset();
+        droppedFlag = true;
+    }
+
+    protected void FetchTrackingData()
+    {
+        if (RightHand)
+        {
+            trackingData = LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.RightHand);
+            HandBonePos = ownerPlayer.GetBonePosition(HumanBodyBones.RightHand);
+            HandBoneRot = ownerPlayer.GetBoneRotation(HumanBodyBones.RightHand);
+        }
+        else
+        {
+            trackingData = LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.LeftHand);
+            HandBonePos = ownerPlayer.GetBonePosition(HumanBodyBones.LeftHand);
+            HandBoneRot = ownerPlayer.GetBoneRotation(HumanBodyBones.LeftHand);
+        }
+    }
+    protected void MoveObjectByTrackingData()
+    {
+        TransformCache.position = trackingData.position + (trackingData.rotation * Local_ObjectTrackingLocalPos);
+        TransformCache.rotation = trackingData.rotation * Local_ObjectTrackingLocalRot;
+    }
+    protected void MoveObjectByBone()
+    {
+        TransformCache.position = HandBoneRot * ObjectBoneLocalPos + HandBonePos;
+        TransformCache.rotation = HandBoneRot * ObjectBoneLocalRot;
+    }
+    protected void MoveObjectByOnTransformOffset(Transform parentTransform = null)
+    {
+        if (parentTransform)
+        {
+            TransformCache.localPosition = parentTransform.rotation * ObjectLocalPos + HandBonePos;
+            TransformCache.localRotation = parentTransform.rotation * ObjectLocalRot;
+        }
+        else
+        {
+            TransformCache.localPosition = ObjectLocalPos;
+            TransformCache.localRotation = ObjectLocalRot;
         }
     }
 
-    protected void updateLocalPosition()
+    protected void CalculateOffsetOnTrackingData()
     {
-        ObjectLocalRot = TransformCache.localRotation;
-        ObjectLocalPos = TransformCache.localPosition;
+        Local_ObjectTrackingLocalPos = Quaternion.Inverse(trackingData.rotation) * (TransformCache.position - trackingData.position);
+        Local_ObjectTrackingLocalRot = Quaternion.Inverse(trackingData.rotation) * TransformCache.rotation;
     }
-    public void DeskTopWalkAround()
+    protected void CalculateOffsetOnBone()
     {
-        RequestSerialization();
+        ObjectBoneLocalPos = Quaternion.Inverse(HandBoneRot) * (TransformCache.position - HandBonePos);
+        ObjectBoneLocalRot = Quaternion.Inverse(HandBoneRot) * TransformCache.rotation;
+    }
+    protected void CalculateOffsetOnTransform(Transform parentTransform = null)
+    {
+        if(parentTransform)
+        {
+            ObjectLocalPos = Quaternion.Inverse(parentTransform.rotation) * (TransformCache.position - parentTransform.position);
+            ObjectLocalRot = Quaternion.Inverse(parentTransform.rotation) * TransformCache.rotation;
+        }
+        else
+        {
+            ObjectLocalPos = TransformCache.localPosition;
+            ObjectLocalRot = TransformCache.localRotation;
+        }
+    }
+    public override void OnPickup()
+    {
+        pickedFlag = true;
+        pickInitFlag = false;
+        dropInitFlag = false;
+        droppedFlag = false;
+        RightHand = Pickup.currentHand == VRC_Pickup.PickupHand.Right;
+        ownerPlayer = LocalPlayer;
+    }
+    public override void OnDrop()
+    {
+        pickedFlag = false;
+        droppedFlag = false;
+    }
+    public override void OnPickupUseDown()
+    {
+        if (fromUsed > 0.2f)
+        {
+            //singleTap
+            fromUsed = 0;
+            return;
+        }
+        //doubleTap
+    }
+    public void ResetPosition()
+    {
+        gameObject.SetActive(true);
+        TransformCache.localPosition = First_Pos;
+        TransformCache.localRotation = First_Rot;
+        CalculateOffsetOnTransform();
+
+
+        if (Networking.IsOwner(this.gameObject))
+        {
+            if (Pickup.IsHeld)
+            {
+                Pickup.Drop();
+            }
+            pickedFlag = false;
+            RequestSerialization();
+        }
+        else
+        {
+            SendCustomNetworkEvent(VRC.Udon.Common.Interfaces.NetworkEventTarget.Owner, "ResetPosition");
+        }
+
+    }
+
+    public override void OnPlayerLeft(VRCPlayerApi player)
+    {
+        if (player == prevOwner)
+        {
+            pickedFlag = false;
+        }
+        droppedFlag = false;
     }
     public override void OnOwnershipTransferred(VRC.SDKBase.VRCPlayerApi player)
     {
         if (isLocal) return;
         Debug.Log("transfered from " + ownerPlayer.playerId + "to " + player.playerId);
-        if (picked && player != ownerPlayer && ownerPlayer == LocalPlayer) Pickup.Drop();
+        if (pickedFlag && player != ownerPlayer && ownerPlayer == LocalPlayer) Pickup.Drop();
+        prevOwner = ownerPlayer;
         ownerPlayer = player;
         droppedFlag = false;
     }
+    public override void OnDeserialization()
+    {
+        droppedFlag = false;//Update Position
+    }
+    public void DeskTopWalkAround()
+    {
+        RequestSerialization();
+    }
+
 }
