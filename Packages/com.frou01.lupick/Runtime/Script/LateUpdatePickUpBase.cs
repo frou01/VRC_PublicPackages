@@ -111,14 +111,14 @@ public class LateUpdatePickUpBase : UdonSharpBehaviour
         {
             MoveObjectByBone();
         }
-        CalculateOffsetOnTransform();
     }
 
     protected void onPickInit()
     {
         Debug.Log("debug track" + trackingData.position);
         Debug.Log("debug bonep" + HandBonePos);
-        MoveObjectByOnTransformOffset();
+        Debug.Log("debug localPos" + ObjectLocalPos);
+        MoveObjectByOnTransformOffset(TransformCache.parent);
         CalculateOffsetOnTrackingData();
         CalculateOffsetOnBone();
         RequestSerialization();
@@ -130,14 +130,13 @@ public class LateUpdatePickUpBase : UdonSharpBehaviour
     {
         FetchTrackingData();
         MoveObjectByTrackingData();
-        CalculateOffsetOnTransform();
-
-        dropInitFlag = true;
+        CalculateOffsetOnTransform(TransformCache.parent);
         RequestSerialization();
+        dropInitFlag = true;
     }
     protected void onDropped()
     {
-        MoveObjectByOnTransformOffset();
+        MoveObjectByOnTransformOffset(TransformCache.parent);
         droppedFlag = true;
     }
 
@@ -166,7 +165,7 @@ public class LateUpdatePickUpBase : UdonSharpBehaviour
         TransformCache.position = HandBoneRot * ObjectBoneLocalPos + HandBonePos;
         TransformCache.rotation = HandBoneRot * ObjectBoneLocalRot;
     }
-    protected void MoveObjectByOnTransformOffset(Transform parentTransform = null)
+    protected void MoveObjectByOnTransformOffset(Transform parentTransform)
     {
         if (parentTransform)
         {
@@ -190,9 +189,9 @@ public class LateUpdatePickUpBase : UdonSharpBehaviour
         ObjectBoneLocalPos = Quaternion.Inverse(HandBoneRot) * (TransformCache.position - HandBonePos);
         ObjectBoneLocalRot = Quaternion.Inverse(HandBoneRot) * TransformCache.rotation;
     }
-    protected void CalculateOffsetOnTransform(Transform parentTransform = null)
+    protected void CalculateOffsetOnTransform(Transform parentTransform)
     {
-        if(parentTransform)
+        if (parentTransform)
         {
             ObjectLocalPos = Quaternion.Inverse(parentTransform.rotation) * (TransformCache.position - parentTransform.position);
             ObjectLocalRot = Quaternion.Inverse(parentTransform.rotation) * TransformCache.rotation;
@@ -232,7 +231,7 @@ public class LateUpdatePickUpBase : UdonSharpBehaviour
         gameObject.SetActive(true);
         TransformCache.localPosition = First_Pos;
         TransformCache.localRotation = First_Rot;
-        CalculateOffsetOnTransform();
+        CalculateOffsetOnTransform(TransformCache.parent);
 
 
         if (Networking.IsOwner(this.gameObject))
