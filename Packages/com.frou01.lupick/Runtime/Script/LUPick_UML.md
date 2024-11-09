@@ -10,9 +10,9 @@ flowchart TD
 	isInit --NO--> EndLoop
 
 	isInit --YES-->
-	isPostInit{is postInit = true} --NO-->
+	ispostStartFrag{is postStartFrag = true} --NO-->
 	IsObjectReady{is ObjectReady} --YES-->
-	PostInit[[SetOwnerPlayer]] -->
+	postStartFrag[[SetOwnerPlayer]] -->
 	EndLoop[\Loop/]
 
 
@@ -22,30 +22,30 @@ flowchart TD
 	Init[[Init]] -.-
 	isInit
 
-	isPostInit --YES-->
+	ispostStartFrag --YES-->
 	isPicked{is Picked = true}
 
 	isPicked --NO--> 
 	isOwnerOnDrop
 
-	isDropped --YES-->
+	isDropping --NO-->
 	EndLoop
 
 	isOwnerOnDrop{isOwner} --NO-->
-	isDropped
+	isDropping
 
-	isDropInit{is DropInit = true} -.YES.->
-	isDropped{isDropped = true}
+	isdropInitFlag{is dropInitFlag = true} -.NO.->
+	isDropping{is DropFlag = true}
 	
-	isDropped --NO--> onDropped[[onDropped]] --> EndLoop
+	isDropping --YES--> onDropped[[onDropped]] --> EndLoop
 
 	isPicked --YES--> 
 	onPicked[[OnPicked]] -->
 	EndLoop
 
 	isOwnerOnDrop --YES--> 
-	isDropInit --NO--> 
-	onDropInit[[onDropInit]] --> EndLoop
+	isdropInitFlag --YES--> 
+	ondropInit[[ondropInit]] --> EndLoop
 ```
 ```mermaid
 flowchart TD
@@ -53,10 +53,10 @@ flowchart TD
 		
 
 		MoveObjectTransformOnDropped[[Move Object Transform<br> on Dropped transform]] -->
-		SetDroppedFlag_True
+		SetdropFlag_True
 
 	end
-	subgraph "onDropInit"
+	subgraph "ondropInit"
 
 		FetchTrackingDataOnDrop[[Fetch TrackingData]]
 
@@ -64,23 +64,23 @@ flowchart TD
 		FetchTrackingDataOnDrop -->
 		MoveObjectTransform_ByTrackingDataOnDrop[[Move Object Transform<br> by TrackingData]] -->
 		CalculateOffsetOnPlayerOnDrop[[Calculate Offset<br> On Dropped transform]] -->
-		SetDropInitFlag_True -->
-		SyncOnDropInit((sync))
+		SetdropInitFlag_True -->
+		SyncOndropInit((sync))
 	end
 	
-	subgraph "onPickInit"
+	subgraph "onpickInit"
 		
 		MoveObjectTransformOnPickup[[Move Object Transform<br> on Parent transform]] -->
 		CalculateOffsetOnHand[[Calculate Offset<br> On Hand]]-->			
 		CalculateOffsetOnBone[[Calculate Offset<br> On HandBone]]-->
-		SyncOnPickInit((sync)) -->
+		SyncOnpickInit((sync)) -->
 		isVR{is VR} --YES--> 
-		SetpickInit_True
+		SetpickInitFlag_True
 		
 		
 		isVR{is VR}--NO-->
 		DeskTopWalkAround[[DeskTopWalkAround]] --> 
-		SetpickInit_True
+		SetpickInitFlag_True
 		
 		DeskTopWalkAround -."2Sec late".- SyncOnDeskTop((sync))
 	end
@@ -94,15 +94,15 @@ flowchart TD
 
 		isOwnerOnPicked --YES-->
 		FetchTrackingDataOnPicked[[Fetch TrackingData]] -->
-		ispickInit{is pickInit = true}
+		ispickInitFlag{is pickInitFlag = true}
 
-		ispickInit --YES-->
+		ispickInitFlag --NO-->
 		MoveObjectTransform_ByTrackingDataOnPickup
 		
-		ispickInit --NO-->
-		onPickInit_[[onPickInit]]
+		ispickInitFlag --YES-->
+		onpickInit_[[onpickInit]]
 
-		onPickInit_ -->
+		onpickInit_ -->
 		MoveObjectTransform_ByTrackingDataOnPickup[[Move Object Transform<br> by TrackingData]]
 
     end
@@ -147,15 +147,15 @@ classDiagram
 		bool isLocal = false [SerializeField]
 		---------------FLAGS--------------
 		bool init = false
-		bool postInit = false
-		[UdonSynced] bool picked = false
-		bool pickInit = false
-		bool dropInit = true
-		bool droppedFlag = true
+		bool postStartFrag = false
+		[UdonSynced] bool pickedFlag = false
+		bool pickInitFlag = false
+		bool dropInitFlag = false
+		bool dropFlag = false
 
 		#onPicked() void
-		#onPickInit() void
-		#onDropInit() void
+		#onpickInit() void
+		#ondropInit() void
 		#onDropped() void
 		#FetchTrackingData() void
 		#MoveObjectByTrackingData() void

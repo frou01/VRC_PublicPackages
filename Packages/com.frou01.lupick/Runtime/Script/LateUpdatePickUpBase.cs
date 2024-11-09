@@ -10,38 +10,54 @@ public class LateUpdatePickUpBase : UdonSharpBehaviour
 {
 //------------------------------------------
 //----------------VARIABLE------------------
-    [UdonSynced] Vector3 ObjectLocalPos;
-    [UdonSynced] Quaternion ObjectLocalRot;
-    [UdonSynced] Vector3 ObjectBoneLocalPos;
-    [UdonSynced] Quaternion ObjectBoneLocalRot;
-    Vector3 Local_ObjectTrackingLocalPos;
-    Quaternion Local_ObjectTrackingLocalRot;
+    [UdonSynced] protected Vector3 ObjectLocalPos;
+    [UdonSynced] protected Quaternion ObjectLocalRot;
+    [UdonSynced] protected Vector3 ObjectBoneLocalPos;
+    [UdonSynced] protected Quaternion ObjectBoneLocalRot;
+    protected Vector3 Local_ObjectTrackingLocalPos;
+    protected Quaternion Local_ObjectTrackingLocalRot;
 
-    [UdonSynced] bool RightHand;
+    [UdonSynced] protected bool RightHand;
     Vector3 HandBonePos;
     Quaternion HandBoneRot;
     TrackingData trackingData;
 
-    VRCPlayerApi prevOwner;
-    VRCPlayerApi ownerPlayer;
+    protected VRCPlayerApi prevOwner;
+    protected VRCPlayerApi ownerPlayer;
 
-//----------------CONSTANT------------------
-    VRCPlayerApi LocalPlayer;
-    private VRC_Pickup Pickup;
-    Transform TransformCache;
-    Vector3 First_Pos;
-    Quaternion First_Rot;
-    [SerializeField] bool isLocal;//For None(Local Object Mode)
-//----------------FALGS---------------------
-    bool initFlag = false;
-    bool postInitFrag = false;
-    [UdonSynced] bool pickedFlag = false;
-    bool pickInitFlag = false;
-    bool dropInitFlag = true;
-    bool droppedFlag = true;
-//------------------------------------------
+    //----------------CONSTANT------------------
+    protected VRCPlayerApi LocalPlayer;
+    protected VRC_Pickup Pickup;
+    protected Transform TransformCache;
+    protected Vector3 First_Pos;
+    protected Quaternion First_Rot;
+    [SerializeField] protected bool isLocal;//For None(Local Object Mode)
+                                            //----------------FALGS---------------------
+    protected bool startFlag = false;
+    protected bool postStartFrag = false;
+    [UdonSynced] protected bool pickedFlag = false;
+    protected bool pickInitFlag = false;
+    protected bool dropInitFlag = false;
+    protected bool dropFlag = false;
+
+    protected bool isOwnerTransferredFlag = false;
+    protected bool isThefting = false;
+    //------------------------------------------
 
 
+    //OwnerTransfer
+    //|
+    //V
+    //OnPickup
+
+
+    //PlayerLeft
+    //|
+    //V
+    //OwnerTransfer
+    //|
+    //V
+    //Update
     float fromUsed = 10;
 
     void Start()
@@ -51,21 +67,21 @@ public class LateUpdatePickUpBase : UdonSharpBehaviour
         TransformCache = this.transform;
         First_Pos = ObjectLocalPos = TransformCache.localPosition;
         First_Rot = ObjectLocalRot = TransformCache.localRotation;
-        initFlag = true;
+        startFlag = true;
     }
 
     public override void PostLateUpdate()
     {
-        if (!initFlag)
+        if (!startFlag)
         {
             return;
         }
-        else if (!postInitFrag)
+        else if (!postStartFrag)
         {
             if (Networking.IsObjectReady(gameObject))
             {
                 prevOwner = ownerPlayer = Networking.GetOwner(gameObject);
-                postInitFrag = true;
+                postStartFrag = true;
             }
             return;
         }
@@ -81,28 +97,65 @@ public class LateUpdatePickUpBase : UdonSharpBehaviour
         //Desk:TrackingData => BonePosition
         //Desk:GetBonePosition OK
 
+        if (isOwnerTransferredFlag)
+        {
+            Debug.Log("onOwnerTransferred");
+            onOwnerTransferred();
+        }
+
         if (pickedFlag)
         {
+            Debug.Log("onPicked");
             onPicked();
         }
-        else if (!dropInitFlag && ownerPlayer == LocalPlayer)
+        else if (dropInitFlag && ownerPlayer == LocalPlayer)
         {
+            Debug.Log("onDropInit");
             onDropInit();
         }
-        else if (!droppedFlag)
+        else if (dropFlag)
         {
+            Debug.Log("onDropped");
             onDropped();
         }
     }
 
+    protected void onOwnerTransferred()
+    {
+        if (pickedFlag)
+        {
+            if (isThefting)
+            {
+                if (Utilities.IsValid(prevOwner))
+                {
+                    FetchTrackingData(prevOwner);
+                    MoveObjectByBone();
+                }
+                else
+                {
+                    pickedFlag = false;
+                }
+                isThefting = false;
+            }
+            else
+            {
+                pickedFlag = pickInitFlag;
+            }
+        }
+        CalculateOffsetOnTransform(TransformCache.parent);
+        RequestSerialization();
+        isOwnerTransferredFlag = false;
+    }
+
     protected void onPicked()
     {
-        FetchTrackingData();
+        FetchTrackingData(ownerPlayer);
         if (ownerPlayer == LocalPlayer)
         {
             if (fromUsed < 10) fromUsed += Time.deltaTime;
-            if (!pickInitFlag)
+            if (pickInitFlag)
             {
+                Debug.Log("onPickInit");
                 onPickInit();
             }
             MoveObjectByTrackingData();
@@ -111,48 +164,50 @@ public class LateUpdatePickUpBase : UdonSharpBehaviour
         {
             MoveObjectByBone();
         }
+        CalculateOffsetOnTransform(TransformCache.parent);
     }
 
     protected void onPickInit()
     {
-        Debug.Log("debug track" + trackingData.position);
-        Debug.Log("debug bonep" + HandBonePos);
-        Debug.Log("debug localPos" + ObjectLocalPos);
         MoveObjectByOnTransformOffset(TransformCache.parent);
         CalculateOffsetOnTrackingData();
         CalculateOffsetOnBone();
         RequestSerialization();
         if (!LocalPlayer.IsUserInVR()) SendCustomEventDelayedSeconds(nameof(DeskTopWalkAround), 2);
-        pickInitFlag = true;
+        pickInitFlag = false;
     }
 
     protected void onDropInit()
     {
-        FetchTrackingData();
+        FetchTrackingData(ownerPlayer);
         MoveObjectByTrackingData();
         CalculateOffsetOnTransform(TransformCache.parent);
         RequestSerialization();
-        dropInitFlag = true;
+        dropInitFlag = false;
     }
     protected void onDropped()
     {
         MoveObjectByOnTransformOffset(TransformCache.parent);
-        droppedFlag = true;
+        dropFlag = false;
     }
 
     protected void FetchTrackingData()
     {
+        FetchTrackingData(LocalPlayer);
+    }
+    protected void FetchTrackingData(VRCPlayerApi playerApi)
+    {
         if (RightHand)
         {
-            trackingData = LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.RightHand);
-            HandBonePos = ownerPlayer.GetBonePosition(HumanBodyBones.RightHand);
-            HandBoneRot = ownerPlayer.GetBoneRotation(HumanBodyBones.RightHand);
+            trackingData = playerApi.GetTrackingData(VRCPlayerApi.TrackingDataType.RightHand);
+            HandBonePos = playerApi.GetBonePosition(HumanBodyBones.RightHand);
+            HandBoneRot = playerApi.GetBoneRotation(HumanBodyBones.RightHand);
         }
         else
         {
-            trackingData = LocalPlayer.GetTrackingData(VRCPlayerApi.TrackingDataType.LeftHand);
-            HandBonePos = ownerPlayer.GetBonePosition(HumanBodyBones.LeftHand);
-            HandBoneRot = ownerPlayer.GetBoneRotation(HumanBodyBones.LeftHand);
+            trackingData = playerApi.GetTrackingData(VRCPlayerApi.TrackingDataType.LeftHand);
+            HandBonePos = playerApi.GetBonePosition(HumanBodyBones.LeftHand);
+            HandBoneRot = playerApi.GetBoneRotation(HumanBodyBones.LeftHand);
         }
     }
     protected void MoveObjectByTrackingData()
@@ -204,17 +259,18 @@ public class LateUpdatePickUpBase : UdonSharpBehaviour
     }
     public override void OnPickup()
     {
+        isThefting = pickedFlag;
         pickedFlag = true;
-        pickInitFlag = false;
+        pickInitFlag = true;
         dropInitFlag = false;
-        droppedFlag = false;
+        dropFlag = false;
         RightHand = Pickup.currentHand == VRC_Pickup.PickupHand.Right;
-        ownerPlayer = LocalPlayer;
     }
     public override void OnDrop()
     {
         pickedFlag = false;
-        droppedFlag = false;
+        dropInitFlag = true;
+        dropFlag = true;
     }
     public override void OnPickupUseDown()
     {
@@ -252,24 +308,22 @@ public class LateUpdatePickUpBase : UdonSharpBehaviour
 
     public override void OnPlayerLeft(VRCPlayerApi player)
     {
-        if (player == prevOwner)
-        {
-            pickedFlag = false;
-        }
-        droppedFlag = false;
     }
     public override void OnOwnershipTransferred(VRC.SDKBase.VRCPlayerApi player)
     {
+        Debug.Log("OwnerTransfer");
         if (isLocal) return;
         Debug.Log("transfered from " + ownerPlayer.playerId + "to " + player.playerId);
-        if (pickedFlag && player != ownerPlayer && ownerPlayer == LocalPlayer) Pickup.Drop();
         prevOwner = ownerPlayer;
         ownerPlayer = player;
-        droppedFlag = false;
+        if(player == LocalPlayer)
+        {
+            isOwnerTransferredFlag = true;
+        }
     }
     public override void OnDeserialization()
     {
-        droppedFlag = false;//Update Position
+        dropFlag = true;//Update Position
     }
     public void DeskTopWalkAround()
     {
