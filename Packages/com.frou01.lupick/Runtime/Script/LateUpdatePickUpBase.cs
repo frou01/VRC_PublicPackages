@@ -99,23 +99,23 @@ public class LateUpdatePickUpBase : UdonSharpBehaviour
 
         if (isOwnerTransferredFlag)
         {
-            Debug.Log("onOwnerTransferred");
+            //Debug.Log("onOwnerTransferred");
             onOwnerTransferred();
         }
 
         if (pickedFlag)
         {
-            Debug.Log("onPicked");
+            //Debug.Log("onPicked");
             onPicked();
         }
         else if (dropInitFlag && ownerPlayer == LocalPlayer)
         {
-            Debug.Log("onDropInit");
+            //Debug.Log("onDropInit");
             onDropInit();
         }
         else if (dropFlag)
         {
-            Debug.Log("onDropped");
+            //Debug.Log("onDropped");
             onDropped();
         }
     }
@@ -155,7 +155,7 @@ public class LateUpdatePickUpBase : UdonSharpBehaviour
             if (fromUsed < 10) fromUsed += Time.deltaTime;
             if (pickInitFlag)
             {
-                Debug.Log("onPickInit");
+                //Debug.Log("onPickInit");
                 onPickInit();
             }
             MoveObjectByTrackingData();
