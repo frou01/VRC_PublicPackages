@@ -21,7 +21,7 @@ MonoBehaviour:
   compiledVersion: 2
   behaviourSyncMode: 0
   hasInteractEvent: 0
-  scriptID: 2065079741697732930
+  scriptID: -3391017093336070579
   serializationData:
     SerializedFormat: 2
     SerializedBytes: 
@@ -62,7 +62,7 @@ MonoBehaviour:
       Data: 3|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: SPSCatcher[], LuPickAssembly.Runtime
+      Data: LUPick_CatcherCollider[], LuPickAssembly.Runtime
     - Name: 
       Entry: 8
       Data: 

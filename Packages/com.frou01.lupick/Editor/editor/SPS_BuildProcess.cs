@@ -9,17 +9,23 @@ using UnityEngine.SceneManagement;
 public class SPS_BuildProcess : IProcessSceneWithReport
 {
     public int callbackOrder => 0;
-    SPSManager spsManager = null;
+    LUPick_ColliderManager spsManager = null;
 
-    List<SPSCatcher> SPSCatchers = new List<SPSCatcher>();
+    List<LUPick_CatcherCollider> SPSCatchers = new List<LUPick_CatcherCollider>();
 
     public void OnProcessScene(Scene scene, BuildReport report)
     {
         SPSCatchers.Clear();
         foreach (GameObject obj in scene.GetRootGameObjects())
         {
-            spsManager = obj.GetComponent<SPSManager>();
+            spsManager = obj.GetComponent<LUPick_ColliderManager>();
             if (spsManager != null) break;
+        }
+        if(spsManager == null)
+        {
+            GameObject go = new GameObject();
+            go.AddComponent<LUPick_ColliderManager>();
+            spsManager = go.GetComponent<LUPick_ColliderManager>();
         }
         if (spsManager != null)
         {
@@ -30,15 +36,15 @@ public class SPS_BuildProcess : IProcessSceneWithReport
                     SmartPickupSharpRootChangeable SPS = obj.GetComponent<SmartPickupSharpRootChangeable>();
                     SPS.spsManager = spsManager;
                 }
-                if (obj.GetComponent<SPSCatcher>() != null)
+                if (obj.GetComponent<LUPick_CatcherCollider>() != null)
                 {
-                    obj.GetComponent<SPSCatcher>().ID = SPSCatchers.Count;
-                    SPSCatchers.Add(obj.GetComponent<SPSCatcher>());
+                    obj.GetComponent<LUPick_CatcherCollider>().ID = SPSCatchers.Count;
+                    SPSCatchers.Add(obj.GetComponent<LUPick_CatcherCollider>());
                 }
                 if(obj.transform.childCount > 0) searchChild(obj.transform);
             }
 
-            spsManager.setCatchers(SPSCatchers.ToArray());
+            spsManager.SPSCatchers = SPSCatchers.ToArray();
             //Debug.Log(SPSCatchers.ToArray().Length);
             //Debug.Log(SPSCatchers[0].name);
         }
@@ -56,10 +62,10 @@ public class SPS_BuildProcess : IProcessSceneWithReport
                 SmartPickupSharpRootChangeable SPS = obj.GetComponent<SmartPickupSharpRootChangeable>();
                 SPS.spsManager = spsManager;
             }
-            if (obj.GetComponent<SPSCatcher>() != null)
+            if (obj.GetComponent<LUPick_CatcherCollider>() != null)
             {
-                obj.GetComponent<SPSCatcher>().ID = SPSCatchers.Count;
-                SPSCatchers.Add(obj.GetComponent<SPSCatcher>());
+                obj.GetComponent<LUPick_CatcherCollider>().ID = SPSCatchers.Count;
+                SPSCatchers.Add(obj.GetComponent<LUPick_CatcherCollider>());
             }
             if (obj.transform.childCount > 0) searchChild(obj.transform);
         }
