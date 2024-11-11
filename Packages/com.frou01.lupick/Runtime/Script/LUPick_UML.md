@@ -109,8 +109,54 @@ flowchart TD
 ```
 ```mermaid
 ---
+title: TransferOwner sequence
+---
+sequenceDiagram
+	participant ClientA as ------------ClientA------------
+	participant ClientB as ------------ClientB------------
+	opt OwnerTransfer
+		alt Thefting Other Player Object
+        	ClientA ->> ClientB: VRCBackend OwnerTransfer
+        	ClientA ->> ClientB: isPicked = true
+			loop OnPickupEvent
+				opt isPicked = true
+				Note over ClientB: Set isThefting = true
+				end
+				Note over ClientB: PickUp
+				Note over ClientB: Set PickedFlag = true
+				Note over ClientB: Set PickedInitFlag = true
+			end
+		else
+			Note over ClientA,ClientB: other script itteruption, Player left
+			ClientA ->> ClientB: VRCBackend OwnerTransfer
+		end
+		loop OnOwnerTransfer
+			Note over ClientB: Update prevOwner
+			Note over ClientB: Update ownerPlayer
+			Note over ClientB: isOwnerTransferredFlag = true;
+		end
+		loop mainLoop
+			alt Thefting
+				opt onOwnerTransferred
+					Note over ClientB: MoveObject To<br>prevOwner hand
+				end
+			else NotThefting
+				opt onOwnerTransferred
+					Note over ClientB: pickedFlag = false
+				end
+			end
+			opt onPicked
+				Note over ClientB: Set PickedInit = false
+			end
+		end
+    end
+
+```
+```mermaid
+---
 title: LUPickUp
 ---
+
 
 classDiagram
   
