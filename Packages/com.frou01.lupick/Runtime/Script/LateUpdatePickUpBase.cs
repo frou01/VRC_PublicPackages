@@ -139,7 +139,7 @@ public class LateUpdatePickUpBase : UdonSharpBehaviour
             }
             else
             {
-                pickedFlag = pickInitFlag;
+                pickedFlag = false;
             }
         }
         CalculateOffsetOnTransform(TransformCache.parent);
@@ -224,8 +224,8 @@ public class LateUpdatePickUpBase : UdonSharpBehaviour
     {
         if (parentTransform)
         {
-            TransformCache.localPosition = parentTransform.rotation * ObjectLocalPos + HandBonePos;
-            TransformCache.localRotation = parentTransform.rotation * ObjectLocalRot;
+            TransformCache.position = parentTransform.rotation * ObjectLocalPos + parentTransform.position;
+            TransformCache.rotation = parentTransform.rotation * ObjectLocalRot;
         }
         else
         {
@@ -303,7 +303,6 @@ public class LateUpdatePickUpBase : UdonSharpBehaviour
         {
             SendCustomNetworkEvent(VRC.Udon.Common.Interfaces.NetworkEventTarget.Owner, "ResetPosition");
         }
-
     }
 
     public override void OnPlayerLeft(VRCPlayerApi player)
