@@ -30,11 +30,11 @@ public class SmartPickupSharpRootChangeable : UdonSharpBehaviour
     public override void Interact()
     {
     }
-    public LUPick_ColliderManager spsManager;
+    public LUP_RC_ColliderManager spsManager;
     [UdonSynced] int syncedID = -1;
     int localID = -1;
-    LUPick_CatcherCollider currentCatcher;
-    LUPick_CatcherCollider pennedCatcher;
+    LUP_RC_CatcherCollider currentCatcher;
+    LUP_RC_CatcherCollider pennedCatcher;
     bool hooking;
     private Transform rootTransform;
     [SerializeField] bool overrideProximity;
@@ -43,7 +43,7 @@ public class SmartPickupSharpRootChangeable : UdonSharpBehaviour
 
     public void OnTriggerEnter(Collider other)
     {
-        LUPick_CatcherCollider CldCathcer = other.gameObject.GetComponent<LUPick_CatcherCollider>();
+        LUP_RC_CatcherCollider CldCathcer = other.gameObject.GetComponent<LUP_RC_CatcherCollider>();
         if (CldCathcer != null)
         {
             if (CldCathcer.isSyncOwner)
@@ -83,7 +83,7 @@ public class SmartPickupSharpRootChangeable : UdonSharpBehaviour
     public void OnTriggerExit(Collider other)
     {
         if (!Networking.IsOwner(gameObject)) return;
-        LUPick_CatcherCollider CldCathcer = other.gameObject.GetComponent<LUPick_CatcherCollider>();
+        LUP_RC_CatcherCollider CldCathcer = other.gameObject.GetComponent<LUP_RC_CatcherCollider>();
         if (pennedCatcher != null && CldCathcer == pennedCatcher)
         {
             pennedCatcher = null;
@@ -424,7 +424,7 @@ public class SmartPickupSharpRootChangeable : UdonSharpBehaviour
             }
             else
             {
-                currentCatcher = spsManager.SPSCatchers[syncedID].GetComponent<LUPick_CatcherCollider>();
+                currentCatcher = spsManager.SPSCatchers[syncedID].GetComponent<LUP_RC_CatcherCollider>();
                 rootTransform = currentCatcher.transform;
 
             }

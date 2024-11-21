@@ -161,6 +161,7 @@ title: LUPickUp
 classDiagram
   
   UdonSharpBehaviour <|-- LUPickupBase
+  LUPickupBase <|-- LUPickupRouteChangeable
   class UdonSharpBehaviour{
 		+OnPickup() void
 		+OnDrop() void
@@ -217,6 +218,8 @@ classDiagram
 		+OnPlayerLeft() void
 		+OnOwnershipTransferred() void
 		+OnDeserialization() void
+  }
+  class LUPickupRouteChangeable{
 
   }
 

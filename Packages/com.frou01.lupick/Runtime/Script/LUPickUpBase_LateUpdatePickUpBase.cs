@@ -6,7 +6,7 @@ using VRC.SDKBase;
 using VRC.Udon;
 using static VRC.SDKBase.VRCPlayerApi;
 
-public class LateUpdatePickUpBase : UdonSharpBehaviour
+public class LUPickUpBase_LateUpdatePickUpBase : UdonSharpBehaviour
 {
 //------------------------------------------
 //----------------VARIABLE------------------
@@ -28,17 +28,18 @@ public class LateUpdatePickUpBase : UdonSharpBehaviour
     //----------------CONSTANT------------------
     protected VRCPlayerApi LocalPlayer;
     protected VRC_Pickup Pickup;
+    protected Rigidbody PickupRigidBody;
     protected Transform TransformCache;
     protected Vector3 First_Pos;
     protected Quaternion First_Rot;
     [SerializeField] protected bool isLocal;//For None(Local Object Mode)
                                             //----------------FALGS---------------------
-    protected bool startFlag = false;
-    protected bool postStartFrag = false;
-    [UdonSynced] protected bool pickedFlag = false;
-    protected bool pickInitFlag = false;
-    protected bool dropInitFlag = false;
-    protected bool dropFlag = false;
+    /**************/protected bool startFlag = false;
+    /**************/protected bool postStartFrag = false;
+    /**************/protected bool pickInitFlag = false;
+    [UdonSynced]    protected bool pickedFlag = false;
+    /**************/protected bool dropInitFlag = false;
+    /**************/protected bool dropFlag = false;
 
     protected bool isOwnerTransferredFlag = false;
     protected bool isThefting = false;
@@ -63,6 +64,7 @@ public class LateUpdatePickUpBase : UdonSharpBehaviour
     void Start()
     {
         Pickup = this.GetComponent<VRC_Pickup>();
+        PickupRigidBody = this.GetComponent<Rigidbody>();
         LocalPlayer = Networking.LocalPlayer;
         TransformCache = this.transform;
         First_Pos = ObjectLocalPos = TransformCache.localPosition;
@@ -120,7 +122,7 @@ public class LateUpdatePickUpBase : UdonSharpBehaviour
         }
     }
 
-    protected void onOwnerTransferred()
+    protected virtual void onOwnerTransferred()
     {
         if (pickedFlag)
         {
@@ -147,7 +149,7 @@ public class LateUpdatePickUpBase : UdonSharpBehaviour
         isOwnerTransferredFlag = false;
     }
 
-    protected void onPicked()
+    protected virtual void onPicked()
     {
         FetchTrackingData(ownerPlayer);
         if (ownerPlayer == LocalPlayer)
@@ -167,7 +169,7 @@ public class LateUpdatePickUpBase : UdonSharpBehaviour
         CalculateOffsetOnTransform(TransformCache.parent);
     }
 
-    protected void onPickInit()
+    protected virtual void onPickInit()
     {
         MoveObjectByOnTransformOffset(TransformCache.parent);
         CalculateOffsetOnTrackingData();
@@ -177,7 +179,7 @@ public class LateUpdatePickUpBase : UdonSharpBehaviour
         pickInitFlag = false;
     }
 
-    protected void onDropInit()
+    protected virtual void onDropInit()
     {
         FetchTrackingData(ownerPlayer);
         MoveObjectByTrackingData();
@@ -185,17 +187,17 @@ public class LateUpdatePickUpBase : UdonSharpBehaviour
         RequestSerialization();
         dropInitFlag = false;
     }
-    protected void onDropped()
+    protected virtual void onDropped()
     {
         MoveObjectByOnTransformOffset(TransformCache.parent);
         dropFlag = false;
     }
 
-    protected void FetchTrackingData()
+    protected virtual void FetchTrackingData()
     {
         FetchTrackingData(LocalPlayer);
     }
-    protected void FetchTrackingData(VRCPlayerApi playerApi)
+    protected virtual void FetchTrackingData(VRCPlayerApi playerApi)
     {
         if (RightHand)
         {
@@ -210,49 +212,66 @@ public class LateUpdatePickUpBase : UdonSharpBehaviour
             HandBoneRot = playerApi.GetBoneRotation(HumanBodyBones.LeftHand);
         }
     }
-    protected void MoveObjectByTrackingData()
+    protected virtual void MoveObjectByTrackingData()
     {
         TransformCache.position = trackingData.position + (trackingData.rotation * Local_ObjectTrackingLocalPos);
         TransformCache.rotation = trackingData.rotation * Local_ObjectTrackingLocalRot;
     }
-    protected void MoveObjectByBone()
+    protected virtual void MoveObjectByBone()
     {
         TransformCache.position = HandBoneRot * ObjectBoneLocalPos + HandBonePos;
         TransformCache.rotation = HandBoneRot * ObjectBoneLocalRot;
     }
-    protected void MoveObjectByOnTransformOffset(Transform parentTransform)
+    protected virtual void MoveObjectByOnTransformOffset(Transform parentTransform)
     {
         if (parentTransform)
         {
+            Debug.Log("Debug MOT InTransformBlock");
             TransformCache.position = parentTransform.rotation * ObjectLocalPos + parentTransform.position;
             TransformCache.rotation = parentTransform.rotation * ObjectLocalRot;
         }
         else
         {
+            Debug.Log("Debug MOT NullBlock");
             TransformCache.localPosition = ObjectLocalPos;
             TransformCache.localRotation = ObjectLocalRot;
         }
     }
+    protected virtual void MoveObjectByOnTransformOffset_Physics(Transform parentTransform)
+    {
+        if (parentTransform)
+        {
+            Debug.Log("Debug MOTP InTransformBlock");
+            PickupRigidBody.Move(parentTransform.rotation * ObjectLocalPos + parentTransform.position, parentTransform.rotation * ObjectLocalRot);
+        }
+        else
+        {
+            Debug.Log("Debug MOTP NullBlock");
+            PickupRigidBody.Move(ObjectLocalPos, ObjectLocalRot);
+        }
+    }
 
-    protected void CalculateOffsetOnTrackingData()
+    protected virtual void CalculateOffsetOnTrackingData()
     {
         Local_ObjectTrackingLocalPos = Quaternion.Inverse(trackingData.rotation) * (TransformCache.position - trackingData.position);
         Local_ObjectTrackingLocalRot = Quaternion.Inverse(trackingData.rotation) * TransformCache.rotation;
     }
-    protected void CalculateOffsetOnBone()
+    protected virtual void CalculateOffsetOnBone()
     {
         ObjectBoneLocalPos = Quaternion.Inverse(HandBoneRot) * (TransformCache.position - HandBonePos);
         ObjectBoneLocalRot = Quaternion.Inverse(HandBoneRot) * TransformCache.rotation;
     }
-    protected void CalculateOffsetOnTransform(Transform parentTransform)
+    protected virtual void CalculateOffsetOnTransform(Transform parentTransform)
     {
         if (parentTransform)
         {
+            Debug.Log("Debug COT InTransformBlock");
             ObjectLocalPos = Quaternion.Inverse(parentTransform.rotation) * (TransformCache.position - parentTransform.position);
             ObjectLocalRot = Quaternion.Inverse(parentTransform.rotation) * TransformCache.rotation;
         }
         else
         {
+            Debug.Log("Debug COT NullBlock");
             ObjectLocalPos = TransformCache.localPosition;
             ObjectLocalRot = TransformCache.localRotation;
         }
@@ -282,7 +301,7 @@ public class LateUpdatePickUpBase : UdonSharpBehaviour
         }
         //doubleTap
     }
-    public void ResetPosition()
+    public virtual void ResetPosition()
     {
         gameObject.SetActive(true);
         TransformCache.localPosition = First_Pos;
