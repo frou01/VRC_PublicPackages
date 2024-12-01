@@ -18,9 +18,9 @@ public class LUPickUpBase_LateUpdatePickUpBase : UdonSharpBehaviour
     protected Quaternion Local_ObjectTrackingLocalRot;
 
     [UdonSynced] protected bool RightHand;
-    Vector3 HandBonePos;
-    Quaternion HandBoneRot;
-    TrackingData trackingData;
+    protected Vector3 HandBonePos;
+    protected Quaternion HandBoneRot;
+    protected TrackingData trackingData;
 
     protected VRCPlayerApi prevOwner;
     protected VRCPlayerApi ownerPlayer;
@@ -61,7 +61,7 @@ public class LUPickUpBase_LateUpdatePickUpBase : UdonSharpBehaviour
     //Update
     float fromUsed = 10;
 
-    void Start()
+    public virtual void Start()
     {
         Pickup = this.GetComponent<VRC_Pickup>();
         PickupRigidBody = this.GetComponent<Rigidbody>();
@@ -122,7 +122,7 @@ public class LUPickUpBase_LateUpdatePickUpBase : UdonSharpBehaviour
         }
     }
 
-    protected virtual void onOwnerTransferred()
+    protected void onOwnerTransferred()
     {
         if (pickedFlag)
         {
@@ -149,7 +149,7 @@ public class LUPickUpBase_LateUpdatePickUpBase : UdonSharpBehaviour
         isOwnerTransferredFlag = false;
     }
 
-    protected virtual void onPicked()
+    protected void onPicked()
     {
         FetchTrackingData(ownerPlayer);
         if (ownerPlayer == LocalPlayer)
@@ -169,7 +169,7 @@ public class LUPickUpBase_LateUpdatePickUpBase : UdonSharpBehaviour
         CalculateOffsetOnTransform(TransformCache.parent);
     }
 
-    protected virtual void onPickInit()
+    protected void onPickInit()
     {
         MoveObjectByOnTransformOffset(TransformCache.parent);
         CalculateOffsetOnTrackingData();
@@ -187,17 +187,17 @@ public class LUPickUpBase_LateUpdatePickUpBase : UdonSharpBehaviour
         RequestSerialization();
         dropInitFlag = false;
     }
-    protected virtual void onDropped()
+    protected void onDropped()
     {
         MoveObjectByOnTransformOffset(TransformCache.parent);
         dropFlag = false;
     }
 
-    protected virtual void FetchTrackingData()
+    protected void FetchTrackingData()
     {
         FetchTrackingData(LocalPlayer);
     }
-    protected virtual void FetchTrackingData(VRCPlayerApi playerApi)
+    protected void FetchTrackingData(VRCPlayerApi playerApi)
     {
         if (RightHand)
         {
@@ -212,17 +212,17 @@ public class LUPickUpBase_LateUpdatePickUpBase : UdonSharpBehaviour
             HandBoneRot = playerApi.GetBoneRotation(HumanBodyBones.LeftHand);
         }
     }
-    protected virtual void MoveObjectByTrackingData()
+    protected void MoveObjectByTrackingData()
     {
         TransformCache.position = trackingData.position + (trackingData.rotation * Local_ObjectTrackingLocalPos);
         TransformCache.rotation = trackingData.rotation * Local_ObjectTrackingLocalRot;
     }
-    protected virtual void MoveObjectByBone()
+    protected void MoveObjectByBone()
     {
         TransformCache.position = HandBoneRot * ObjectBoneLocalPos + HandBonePos;
         TransformCache.rotation = HandBoneRot * ObjectBoneLocalRot;
     }
-    protected virtual void MoveObjectByOnTransformOffset(Transform parentTransform)
+    protected void MoveObjectByOnTransformOffset(Transform parentTransform)
     {
         if (parentTransform)
         {
@@ -237,31 +237,18 @@ public class LUPickUpBase_LateUpdatePickUpBase : UdonSharpBehaviour
             TransformCache.localRotation = ObjectLocalRot;
         }
     }
-    protected virtual void MoveObjectByOnTransformOffset_Physics(Transform parentTransform)
-    {
-        if (parentTransform)
-        {
-            Debug.Log("Debug MOTP InTransformBlock");
-            PickupRigidBody.Move(parentTransform.rotation * ObjectLocalPos + parentTransform.position, parentTransform.rotation * ObjectLocalRot);
-        }
-        else
-        {
-            Debug.Log("Debug MOTP NullBlock");
-            PickupRigidBody.Move(ObjectLocalPos, ObjectLocalRot);
-        }
-    }
 
-    protected virtual void CalculateOffsetOnTrackingData()
+    protected void CalculateOffsetOnTrackingData()
     {
         Local_ObjectTrackingLocalPos = Quaternion.Inverse(trackingData.rotation) * (TransformCache.position - trackingData.position);
         Local_ObjectTrackingLocalRot = Quaternion.Inverse(trackingData.rotation) * TransformCache.rotation;
     }
-    protected virtual void CalculateOffsetOnBone()
+    protected void CalculateOffsetOnBone()
     {
         ObjectBoneLocalPos = Quaternion.Inverse(HandBoneRot) * (TransformCache.position - HandBonePos);
         ObjectBoneLocalRot = Quaternion.Inverse(HandBoneRot) * TransformCache.rotation;
     }
-    protected virtual void CalculateOffsetOnTransform(Transform parentTransform)
+    protected void CalculateOffsetOnTransform(Transform parentTransform)
     {
         if (parentTransform)
         {
@@ -301,7 +288,7 @@ public class LUPickUpBase_LateUpdatePickUpBase : UdonSharpBehaviour
         }
         //doubleTap
     }
-    public virtual void ResetPosition()
+    public void ResetPosition()
     {
         gameObject.SetActive(true);
         TransformCache.localPosition = First_Pos;
@@ -322,10 +309,6 @@ public class LUPickUpBase_LateUpdatePickUpBase : UdonSharpBehaviour
         {
             SendCustomNetworkEvent(VRC.Udon.Common.Interfaces.NetworkEventTarget.Owner, "ResetPosition");
         }
-    }
-
-    public override void OnPlayerLeft(VRCPlayerApi player)
-    {
     }
     public override void OnOwnershipTransferred(VRC.SDKBase.VRCPlayerApi player)
     {

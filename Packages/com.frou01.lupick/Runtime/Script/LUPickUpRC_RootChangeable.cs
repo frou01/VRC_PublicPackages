@@ -6,11 +6,34 @@ using VRC.Udon;
 
 public class LUPickUpRC_RootChangeable : LUPickUpBase_LateUpdatePickUpBase
 {
-    [UdonSynced] protected int crntCatcherID;
-    [UdonSynced] protected int pendCatcherID;
-    protected LUP_RC_CatcherCollider crntCatcher;
-    protected LUP_RC_CatcherCollider pendCatcher;
-    [HideInInspector] [SerializeField] public LUP_RC_ColliderManager spsManager;
+    [UdonSynced] protected int crntCatcherID = -1;
+    protected Collider[] colliders;
+    public override void Start()
+    {
+        base.Start();
+        colliders = GetComponentsInChildren<Collider>();
+    }
+    private LUP_RC_CatcherCollider m_crntCatcher;
+    protected LUP_RC_CatcherCollider crntCatcher
+    {
+        get
+        {
+            return m_crntCatcher;
+        }
+        set
+        {
+            m_crntCatcher = value;
+            if (m_crntCatcher != null)
+            {
+                crntCatcherID = m_crntCatcher.ID;
+            }
+            else
+            {
+                crntCatcherID = -1;
+            }
+        }
+    }
+    [HideInInspector] [SerializeField] public LUP_RC_ColliderManager RCCManager;
 
     protected override void onDropInit()
     {
@@ -44,22 +67,51 @@ public class LUPickUpRC_RootChangeable : LUPickUpBase_LateUpdatePickUpBase
             }
         }
     }
+    protected bool isTransferingColliderFlag = false;
     private void OnTriggerExit(Collider other)
     {
+        if (ownerPlayer != LocalPlayer) return;
         if (other)
         {
             LUP_RC_CatcherCollider catcherCollider = other.GetComponent<LUP_RC_CatcherCollider>();
             if (catcherCollider == crntCatcher)
             {
-                crntCatcher = pendCatcher;
-                pendCatcher = null;
-                SetParentToCollider(crntCatcher);
-            }
-            else if(catcherCollider == pendCatcher)
-            {
-                pendCatcher = null;
+                crntCatcher = null;
+                if (!isTransferingColliderFlag)
+                {
+                    isTransferingColliderFlag = true;
+                    foreach (Collider collider in colliders)
+                    {
+                        collider.enabled = false;
+                    }
+                    SendCustomEventDelayedFrames(nameof(_reactivateCollider), 0, VRC.Udon.Common.Enums.EventTiming.LateUpdate);
+                }
             }
         }
+    }
+
+    public void _reactivateCollider()
+    {
+        foreach(Collider collider in colliders)
+        {
+            collider.enabled = true;
+        }
+        SendCustomEventDelayedFrames(nameof(_tryApplyExit), 0, VRC.Udon.Common.Enums.EventTiming.LateUpdate);
+    }
+
+    public void _tryApplyExit()
+    {
+        if (crntCatcher == null)
+        {
+            SetParentToCollider(null);
+            RequestSerialization();
+        }
+        isTransferingColliderFlag = false;
+    }
+
+    public override bool OnOwnershipRequest(VRC.SDKBase.VRCPlayerApi requestingPlayer, VRC.SDKBase.VRCPlayerApi requestedOwner)
+    {
+        return requestingPlayer == LocalPlayer || !isTransferingColliderFlag;
     }
 
     protected void SetParentToCollider(LUP_RC_CatcherCollider catcherCollider)
@@ -69,12 +121,13 @@ public class LUPickUpRC_RootChangeable : LUPickUpBase_LateUpdatePickUpBase
             ResetParent();
             return;
         }
-        Debug.Log("ReplacePairent");
-        if (crntCatcher != catcherCollider)
+        if (ownerPlayer == LocalPlayer && 
+            !catcherCollider.isHook && 
+            !this.Pickup.IsHeld && !isTransferingColliderFlag)
         {
-            pendCatcher = crntCatcher;
-            if(pendCatcher) pendCatcherID = pendCatcher.ID;
+            return;
         }
+        Debug.Log("ReplaceParent");
         crntCatcher = catcherCollider;
         TransformCache.parent = crntCatcher.transform;
         if (crntCatcher.dropTarget)
@@ -96,8 +149,7 @@ public class LUPickUpRC_RootChangeable : LUPickUpBase_LateUpdatePickUpBase
     {
         Debug.Log("ResetParent");
         TransformCache.parent = null;
-        if (dropFlag) CalculateOffsetOnTransform(TransformCache.parent);
-        pendCatcherID = -1;
+        CalculateOffsetOnTransform(TransformCache.parent);
         crntCatcher = null;
         RequestSerialization();
     }
@@ -110,15 +162,8 @@ public class LUPickUpRC_RootChangeable : LUPickUpBase_LateUpdatePickUpBase
         }
         else
         {
-            SetParentToCollider(spsManager.SPSCatchers[crntCatcherID]);
-        }
-        if(pendCatcherID == -1)
-        {
-            pendCatcher = spsManager.SPSCatchers[pendCatcherID];
-        }
-        else
-        {
-            pendCatcher = null;
+            Debug.Log(crntCatcherID);
+            SetParentToCollider(RCCManager.RCCatchers[crntCatcherID]);
         }
     }
 }

@@ -424,7 +424,7 @@ public class SmartPickupSharpRootChangeable : UdonSharpBehaviour
             }
             else
             {
-                currentCatcher = spsManager.SPSCatchers[syncedID].GetComponent<LUP_RC_CatcherCollider>();
+                currentCatcher = spsManager.RCCatchers[syncedID].GetComponent<LUP_RC_CatcherCollider>();
                 rootTransform = currentCatcher.transform;
 
             }

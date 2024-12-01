@@ -7,5 +7,5 @@ using VRC.Udon;
 
 public class LUP_RC_ColliderManager : UdonSharpBehaviour
 {
-    public LUP_RC_CatcherCollider[] SPSCatchers;
+    public LUP_RC_CatcherCollider[] RCCatchers;
 }
