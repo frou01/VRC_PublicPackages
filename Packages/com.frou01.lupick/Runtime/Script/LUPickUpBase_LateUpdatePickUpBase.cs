@@ -141,7 +141,7 @@ public class LUPickUpBase_LateUpdatePickUpBase : UdonSharpBehaviour
             }
             else
             {
-                pickedFlag = false;
+                pickedFlag = this.Pickup.IsHeld;
             }
         }
         CalculateOffsetOnTransform(TransformCache.parent);
@@ -324,7 +324,7 @@ public class LUPickUpBase_LateUpdatePickUpBase : UdonSharpBehaviour
     }
     public override void OnDeserialization()
     {
-        dropFlag = true;//Update Position
+        MoveObjectByOnTransformOffset(TransformCache.parent);//Update Position
     }
     public void DeskTopWalkAround()
     {
