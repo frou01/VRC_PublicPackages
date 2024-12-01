@@ -105,7 +105,7 @@ flowchart TD
 		onpickInit_ -->
 		MoveObjectTransform_ByTrackingDataOnPickup[[Move Object Transform<br> by TrackingData]]
 
-    end
+	end
 ```
 ```mermaid
 ---
@@ -116,8 +116,8 @@ sequenceDiagram
 	participant ClientB as ------------ClientB------------
 	opt OwnerTransfer
 		alt Thefting Other Player Object
-        	ClientA ->> ClientB: VRCBackend OwnerTransfer
-        	ClientA ->> ClientB: isPicked = true
+			ClientA ->> ClientB: VRCBackend OwnerTransfer
+			ClientA ->> ClientB: isPicked = true
 			loop OnPickupEvent
 				opt isPicked = true
 				Note over ClientB: Set isThefting = true
@@ -149,7 +149,7 @@ sequenceDiagram
 				Note over ClientB: Set PickedInit = false
 			end
 		end
-    end
+	end
 
 ```
 ```mermaid
@@ -159,69 +159,83 @@ title: LUPickUp
 
 
 classDiagram
-  
-  UdonSharpBehaviour <|-- LUPickupBase
-  LUPickupBase <|-- LUPickupRouteChangeable
-  class UdonSharpBehaviour{
-		+OnPickup() void
-		+OnDrop() void
-		+OnPickupUseDown() void
-		+ResetPosition() void
-		+OnPlayerLeft() void
-		+OnOwnershipTransferred() void
-		+OnDeserialization() void
-  }
-  class LUPickupBase {
-		---------------VARIABLE-----------
-		[UdonSynced] Vector3 ObjectLocalPos
-		[UdonSynced] Quaternion ObjectLocalRot
-		[UdonSynced] Vector3 ObjectBoneLocalPos 
-		[UdonSynced] Quaternion ObjectBoneLocalRot
-		Vector3 Local_ObjectTrackingLocalPos
-    	Quaternion Local_ObjectTrackingLocalRot
-		[UdonSynced] bool RightHand
-		Vector3 HandBonePos
-		Quaternion HandBoneRot
-		TrackingData trackingData
-		VRCPlayerApi prevOwner
-    	VRCPlayerApi ownerPlayer
-		---------------CONSTANT-----------
-    	VRCPlayerApi LocalPlayer
-		VRC_Pickup Pickup
-		Transform TransformCache
-		Vector3 First_Pos [Local]
-		Quaternion First_Rot [Local]
-		bool isLocal = false [SerializeField]
-		---------------FLAGS--------------
-		bool init = false
-		bool postStartFrag = false
-		[UdonSynced] bool pickedFlag = false
-		bool pickInitFlag = false
-		bool dropInitFlag = false
-		bool dropFlag = false
+UdonSharpBehaviour <|-- LUPickupBase
+LUPickupBase <|-- LUPickupRouteChangeable
+LUPickupRouteChangeable o-- LUP_RC_CatcherCollider
+LUPickupRouteChangeable o-- LUP_RC_ColliderManager
+class UdonSharpBehaviour{
+	+OnPickup() void
+	+OnDrop() void
+	+OnPickupUseDown() void
+	+ResetPosition() void
+	+OnPlayerLeft() void
+	+OnOwnershipTransferred() void
+	+OnDeserialization() void
+}
+class LUPickupBase {
+	---------------VARIABLE-----------
+	#[UdonSynced] Vector3 ObjectLocalPos$
+	#[UdonSynced] Quaternion ObjectLocalRot$
+	#[UdonSynced] Vector3 ObjectBoneLocalPos$
+	#[UdonSynced] Quaternion ObjectBoneLocalRot$
+	#Vector3 Local_ObjectTrackingLocalPos
+	#Quaternion Local_ObjectTrackingLocalRot
+	#[UdonSynced] bool RightHand$
+	#Vector3 HandBonePos
+	#Quaternion HandBoneRot
+	#TrackingData trackingData
+	#VRCPlayerApi prevOwner
+	#VRCPlayerApi ownerPlayer
+	---------------CONSTANT-----------
+	#VRCPlayerApi LocalPlayer
+	#VRC_Pickup Pickup
+	#Transform TransformCache
+	#Vector3 First_Pos 
+	#Quaternion First_Rot 
+	#[SerializeField] bool isLocal = false 
+	---------------FLAGS--------------
+	#bool init = false
+	#bool postStartFrag = false
+	#[UdonSynced] bool pickedFlag = false$
+	#bool pickInitFlag = false
+	#bool dropInitFlag = false
+	#bool dropFlag = false
 
-		#onPicked() void
-		#onpickInit() void
-		#ondropInit() void
-		#onDropped() void
-		#FetchTrackingData() void
-		#MoveObjectByTrackingData() void
-		#MoveObjectByBone() void
-		#MoveObjectByOnTransformOffset() void
-		#CalculateOffsetOnTrackingData() void
-		#CalculateOffsetOnBone() void
-		#CalculateOffsetOnTransform() void
-		+OnPickup() void
-		+OnDrop() void
-		+OnPickupUseDown() void*
-		+ResetPosition() void
-		+OnPlayerLeft() void
-		+OnOwnershipTransferred() void
-		+OnDeserialization() void
-  }
-  class LUPickupRouteChangeable{
-
-  }
+	#onPicked() void
+	#onpickInit() void
+	#ondropInit() void
+	#onDropped() void
+	#FetchTrackingData() void
+	#MoveObjectByTrackingData() void
+	#MoveObjectByBone() void
+	#MoveObjectByOnTransformOffset() void
+	#CalculateOffsetOnTrackingData() void
+	#CalculateOffsetOnBone() void
+	#CalculateOffsetOnTransform() void
+	+OnPickup() void
+	+OnDrop() void
+	+OnPickupUseDown() void*
+	+ResetPosition() void
+	+OnPlayerLeft() void
+	+OnOwnershipTransferred() void
+	+OnDeserialization() void
+}
+class LUPickupRouteChangeable{
+	#[UdonSynced] int crntCatcherID$
+	#[UdonSynced] int pendCatcherID$
+	#LUP_RC_CatcherCollider crntCatcher
+	#LUP_RC_CatcherCollider pendCatcher
+	+LUP_RC_ColliderManager spsManager
+}
+class LUP_RC_CatcherCollider{
+	+int ID;
+	+bool isHook
+	+bool isSyncOwner
+	+Transform dropTarget
+}
+class LUP_RC_ColliderManager{
+	+LUP_RC_CatcherCollider[] SPSCatchers
+}
 
 
 ```
