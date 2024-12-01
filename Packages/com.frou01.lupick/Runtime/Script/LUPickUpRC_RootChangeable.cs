@@ -165,5 +165,6 @@ public class LUPickUpRC_RootChangeable : LUPickUpBase_LateUpdatePickUpBase
             Debug.Log(crntCatcherID);
             SetParentToCollider(RCCManager.RCCatchers[crntCatcherID]);
         }
+        MoveObjectByOnTransformOffset(TransformCache.parent);
     }
 }
