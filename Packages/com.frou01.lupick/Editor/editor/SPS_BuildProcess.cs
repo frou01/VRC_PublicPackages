@@ -5,40 +5,54 @@ using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using VRC.SDKBase.Editor.BuildPipeline;
 
-public class SPS_BuildProcess : IProcessSceneWithReport
+public class SPS_BuildProcess : IProcessSceneWithReport , IVRCSDKBuildRequestedCallback
 {
     public int callbackOrder => 0;
-    SPSManager spsManager = null;
+    LUP_RC_ColliderManager RCCManager = null;
 
-    List<SPSCatcher> SPSCatchers = new List<SPSCatcher>();
+    List<LUP_RC_CatcherCollider> RCCatchers = new List<LUP_RC_CatcherCollider>();
 
     public void OnProcessScene(Scene scene, BuildReport report)
     {
-        SPSCatchers.Clear();
+        RCCatchers.Clear();
+        RCCManager = null;
         foreach (GameObject obj in scene.GetRootGameObjects())
         {
-            spsManager = obj.GetComponent<SPSManager>();
-            if (spsManager != null) break;
+            RCCManager = obj.GetComponent<LUP_RC_ColliderManager>();
+            if (RCCManager != null) break;
         }
-        if (spsManager != null)
+        if(RCCManager == null)
+        {
+            GameObject go = new GameObject();
+            go.AddComponent<LUP_RC_ColliderManager>();
+            RCCManager = go.GetComponent<LUP_RC_ColliderManager>();
+        }
+        if (RCCManager != null)
         {
             foreach (GameObject obj in scene.GetRootGameObjects())
             {
                 if (obj.GetComponent<SmartPickupSharpRootChangeable>() != null)
                 {
                     SmartPickupSharpRootChangeable SPS = obj.GetComponent<SmartPickupSharpRootChangeable>();
-                    SPS.spsManager = spsManager;
+                    SPS.spsManager = RCCManager;
                 }
-                if (obj.GetComponent<SPSCatcher>() != null)
+                if (obj.GetComponent<LUPickUpRC_RootChangeable>() != null)
                 {
-                    obj.GetComponent<SPSCatcher>().ID = SPSCatchers.Count;
-                    SPSCatchers.Add(obj.GetComponent<SPSCatcher>());
+                    LUPickUpRC_RootChangeable LPRC = obj.GetComponent<LUPickUpRC_RootChangeable>();
+                    LPRC.RCCManager = RCCManager;
+                    //Debug.Log(LPRC);
+                }
+                if (obj.GetComponent<LUP_RC_CatcherCollider>() != null)
+                {
+                    obj.GetComponent<LUP_RC_CatcherCollider>().ID = RCCatchers.Count;
+                    RCCatchers.Add(obj.GetComponent<LUP_RC_CatcherCollider>());
                 }
                 if(obj.transform.childCount > 0) searchChild(obj.transform);
             }
 
-            spsManager.setCatchers(SPSCatchers.ToArray());
+            RCCManager.RCCatchers = RCCatchers.ToArray();
             //Debug.Log(SPSCatchers.ToArray().Length);
             //Debug.Log(SPSCatchers[0].name);
         }
@@ -54,14 +68,27 @@ public class SPS_BuildProcess : IProcessSceneWithReport
             if (obj.GetComponent<SmartPickupSharpRootChangeable>() != null)
             {
                 SmartPickupSharpRootChangeable SPS = obj.GetComponent<SmartPickupSharpRootChangeable>();
-                SPS.spsManager = spsManager;
+                SPS.spsManager = RCCManager;
             }
-            if (obj.GetComponent<SPSCatcher>() != null)
+            if (obj.GetComponent<LUPickUpRC_RootChangeable>() != null)
             {
-                obj.GetComponent<SPSCatcher>().ID = SPSCatchers.Count;
-                SPSCatchers.Add(obj.GetComponent<SPSCatcher>());
+                LUPickUpRC_RootChangeable LPRC = obj.GetComponent<LUPickUpRC_RootChangeable>();
+                LPRC.RCCManager = RCCManager;
+            }
+            if (obj.GetComponent<LUP_RC_CatcherCollider>() != null)
+            {
+                obj.GetComponent<LUP_RC_CatcherCollider>().ID = RCCatchers.Count;
+                RCCatchers.Add(obj.GetComponent<LUP_RC_CatcherCollider>());
             }
             if (obj.transform.childCount > 0) searchChild(obj.transform);
         }
+    }
+
+    public bool OnBuildRequested(VRCSDKRequestedBuildType requestedBuildType)
+    {
+        Scene scene = SceneManager.GetActiveScene();
+
+        OnProcessScene(scene, null);
+        return true;
     }
 }

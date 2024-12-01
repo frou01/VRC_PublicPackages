@@ -5,7 +5,7 @@ using VRC.SDKBase;
 using VRC.Udon;
 [UdonBehaviourSyncMode(BehaviourSyncMode.None)]
 
-public class SPSCatcher : UdonSharpBehaviour
+public class LUP_RC_CatcherCollider : UdonSharpBehaviour
 {
     public int ID;
     public bool isHook;//Drop on entering

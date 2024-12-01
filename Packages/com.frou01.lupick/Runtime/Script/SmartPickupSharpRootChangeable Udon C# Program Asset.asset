@@ -62,7 +62,7 @@ MonoBehaviour:
       Data: 3|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: SPSManager, LuPickAssembly.Runtime
+      Data: LUP_RC_ColliderManager, LuPickAssembly.Runtime
     - Name: 
       Entry: 8
       Data: 
@@ -230,7 +230,7 @@ MonoBehaviour:
       Data: 13|System.RuntimeType, mscorlib
     - Name: 
       Entry: 1
-      Data: SPSCatcher, LuPickAssembly.Runtime
+      Data: LUP_RC_CatcherCollider, LuPickAssembly.Runtime
     - Name: 
       Entry: 8
       Data: 
