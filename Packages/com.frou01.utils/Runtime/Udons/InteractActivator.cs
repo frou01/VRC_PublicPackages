@@ -6,10 +6,8 @@ using VRC.Udon;
 
 public class InteractActivator : UdonSharpBehaviour
 {
-    PlayerChaser playerChaser;
-
-    [System.NonSerialized] public Transform handL;
-    [System.NonSerialized] public Transform handR;
+    public Transform handL;
+    public Transform handR;
 
     [SerializeField]Collider[] colliders;
     [SerializeField] VRC_Pickup[] pickups;
@@ -52,7 +50,7 @@ public class InteractActivator : UdonSharpBehaviour
         {
             return;
         }
-        Debug.Log("ChangeTo " + state);
+        //Debug.Log("ChangeTo " + state);
         currentState = state;
         foreach (Component com in colliders)
         {

@@ -4,10 +4,11 @@ using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using VRC.SDKBase.Editor.BuildPipeline;
 
-public class InteractActivator_HandSetter : IProcessSceneWithReport
+public class InteractActivator_HandSetter : IProcessSceneWithReport, IVRCSDKBuildRequestedCallback
 {
-    public int callbackOrder => 1;
+    public int callbackOrder => 0;
 
     public PlayerChaser playerChaser;
 
@@ -23,6 +24,7 @@ public class InteractActivator_HandSetter : IProcessSceneWithReport
         }
         foreach (InteractActivator IA in target)
         {
+            Debug.Log(IA);
             IA.handL = playerChaser.HandL;
             IA.handR = playerChaser.HandR;
         }
@@ -42,5 +44,12 @@ public class InteractActivator_HandSetter : IProcessSceneWithReport
         {
             Proceed(obj);
         }
+    }
+
+    public bool OnBuildRequested(VRCSDKRequestedBuildType requestedBuildType)
+    {
+        Scene scene = SceneManager.GetActiveScene();
+        OnProcessScene(scene, null);
+        return true;
     }
 }
