@@ -151,10 +151,17 @@ public class VehicleInSideSeatMNG : UdonSharpBehaviour
 
     public override void OnPlayerLeft(VRCPlayerApi playerApi)
     {
-        if (local_AllocatedSeat != null && Networking.IsOwner(local_AllocatedSeat.gameObject))
+        for (int id = 0; id < preset_inVehicleStations.Length; id++)
         {
-            local_AllocatedSeat.AllocatePlayer = -1;
-            local_AllocatedSeat.RequestSerialization();
+            FloorStationController movableSeat = preset_inVehicleStations[id];
+            if(movableSeat.AllocatePlayer == playerApi.playerId)
+            {
+                if (Networking.IsOwner(movableSeat.gameObject))
+                {
+                    movableSeat.AllocatePlayer = -1;
+                    movableSeat.RequestSerialization();
+                }
+            }
         }
     }
 
