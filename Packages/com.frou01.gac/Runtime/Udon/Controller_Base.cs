@@ -86,7 +86,8 @@ public class Controller_Base : UdonSharpBehaviour
     bool hasSegmentArray;
     protected VRCPlayerApi.TrackingData trackingData;
 
-    [System.NonSerialized]public bool locked;
+    [System.NonSerialized]public bool locked = false;
+    [System.NonSerialized]public bool lockedSegment = false;
 
     void Start()
     {
@@ -260,7 +261,7 @@ public class Controller_Base : UdonSharpBehaviour
                 {
                     if (currentSegment > 0)
                     {
-                        if (isowner) currentSegment--;
+                        if (isowner && !lockedSegment) currentSegment--;
                     }
                     else
                     {
@@ -272,7 +273,7 @@ public class Controller_Base : UdonSharpBehaviour
                 {
                     if (currentSegment + 2 < segment_points.Length)
                     {
-                        if (isowner) currentSegment++;
+                        if (isowner && !lockedSegment) currentSegment++;
                     }
                     else
                     {

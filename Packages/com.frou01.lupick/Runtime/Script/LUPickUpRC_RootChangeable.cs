@@ -41,6 +41,7 @@ public class LUPickUpRC_RootChangeable : LUPickUpBase_LateUpdatePickUpBase
         base.onPickInit();
         if(crntCatcher == null)
         {
+            ExitWait_To_PickUp = false;
             StartExit();
         }
     }
