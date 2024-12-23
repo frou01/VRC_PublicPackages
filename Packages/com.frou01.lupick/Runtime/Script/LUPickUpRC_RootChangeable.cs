@@ -7,6 +7,7 @@ using VRC.Udon;
 public class LUPickUpRC_RootChangeable : LUPickUpBase_LateUpdatePickUpBase
 {
     [UdonSynced] protected int crntCatcherID = -1;
+    [UdonSynced] bool ExitWait_To_PickUp = false;
     protected Collider[] colliders;
     public override void Start()
     {
@@ -35,6 +36,14 @@ public class LUPickUpRC_RootChangeable : LUPickUpBase_LateUpdatePickUpBase
     }
     [HideInInspector] [SerializeField] public LUP_RC_ColliderManager RCCManager;
 
+    protected override void onPickInit()
+    {
+        base.onPickInit();
+        if(crntCatcher == null)
+        {
+            StartExit();
+        }
+    }
     protected override void onDropInit()
     {
         base.onDropInit();
@@ -77,16 +86,28 @@ public class LUPickUpRC_RootChangeable : LUPickUpBase_LateUpdatePickUpBase
             if (catcherCollider == crntCatcher)
             {
                 crntCatcher = null;
-                if (!isTransferingColliderFlag)
+                if (pickedFlag)
                 {
-                    isTransferingColliderFlag = true;
-                    foreach (Collider collider in colliders)
-                    {
-                        collider.enabled = false;
-                    }
-                    SendCustomEventDelayedFrames(nameof(_reactivateCollider), 0, VRC.Udon.Common.Enums.EventTiming.LateUpdate);
+                    StartExit();
+                }
+                else
+                {
+                    ExitWait_To_PickUp = true;
                 }
             }
+        }
+    }
+    
+    private void StartExit()
+    {
+        if (!isTransferingColliderFlag)
+        {
+            isTransferingColliderFlag = true;
+            foreach (Collider collider in colliders)
+            {
+                collider.enabled = false;
+            }
+            SendCustomEventDelayedFrames(nameof(_reactivateCollider), 0, VRC.Udon.Common.Enums.EventTiming.LateUpdate);
         }
     }
 
@@ -158,7 +179,7 @@ public class LUPickUpRC_RootChangeable : LUPickUpBase_LateUpdatePickUpBase
         base.OnDeserialization();
         if (crntCatcherID == -1)
         {
-            ResetParent();
+            if(!ExitWait_To_PickUp) ResetParent();
         }
         else
         {

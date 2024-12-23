@@ -149,7 +149,7 @@ public class LUPickUpBase_LateUpdatePickUpBase : UdonSharpBehaviour
         isOwnerTransferredFlag = false;
     }
 
-    protected void onPicked()
+    protected virtual void onPicked()
     {
         FetchTrackingData(ownerPlayer);
         if (ownerPlayer == LocalPlayer)
@@ -169,7 +169,7 @@ public class LUPickUpBase_LateUpdatePickUpBase : UdonSharpBehaviour
         CalculateOffsetOnTransform(TransformCache.parent);
     }
 
-    protected void onPickInit()
+    protected virtual void onPickInit()
     {
         MoveObjectByOnTransformOffset(TransformCache.parent);
         CalculateOffsetOnTrackingData();
@@ -187,13 +187,13 @@ public class LUPickUpBase_LateUpdatePickUpBase : UdonSharpBehaviour
         RequestSerialization();
         dropInitFlag = false;
     }
-    protected void onDropped()
+    protected virtual void onDropped()
     {
         MoveObjectByOnTransformOffset(TransformCache.parent);
         dropFlag = false;
     }
 
-    protected void FetchTrackingData()
+    protected virtual void FetchTrackingData()
     {
         FetchTrackingData(LocalPlayer);
     }
