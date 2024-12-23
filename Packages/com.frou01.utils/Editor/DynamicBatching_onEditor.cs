@@ -4,8 +4,9 @@ using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using VRC.SDKBase.Editor.BuildPipeline;
 
-public class DynamicBatching_onEditor : IProcessSceneWithReport
+public class DynamicBatching_onEditor : IProcessSceneWithReport, IVRCSDKBuildRequestedCallback
 {
     public int callbackOrder => 1;
 
@@ -51,5 +52,10 @@ public class DynamicBatching_onEditor : IProcessSceneWithReport
             path += "/" + objPath[i].gameObject.name;
 
         return path;
+    }
+
+    public bool OnBuildRequested(VRCSDKRequestedBuildType requestedBuildType)
+    {
+        return true;
     }
 }

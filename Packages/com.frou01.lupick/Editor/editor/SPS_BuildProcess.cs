@@ -86,9 +86,6 @@ public class SPS_BuildProcess : IProcessSceneWithReport , IVRCSDKBuildRequestedC
 
     public bool OnBuildRequested(VRCSDKRequestedBuildType requestedBuildType)
     {
-        Scene scene = SceneManager.GetActiveScene();
-
-        OnProcessScene(scene, null);
         return true;
     }
 }
