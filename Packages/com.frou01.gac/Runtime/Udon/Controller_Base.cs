@@ -88,6 +88,8 @@ public class Controller_Base : UdonSharpBehaviour
 
     [System.NonSerialized]public bool locked = false;
     [System.NonSerialized]public bool lockedSegment = false;
+    [System.NonSerialized] public bool lockedSegment_Dec = false;
+    [System.NonSerialized] public bool lockedSegment_Inc = false;
 
     void Start()
     {
@@ -261,7 +263,7 @@ public class Controller_Base : UdonSharpBehaviour
                 {
                     if (currentSegment > 0)
                     {
-                        if (isowner && !lockedSegment) currentSegment--;
+                        if (isowner && !lockedSegment && !lockedSegment_Dec) currentSegment--;
                     }
                     else
                     {
@@ -273,7 +275,7 @@ public class Controller_Base : UdonSharpBehaviour
                 {
                     if (currentSegment + 2 < segment_points.Length)
                     {
-                        if (isowner && !lockedSegment) currentSegment++;
+                        if (isowner && !lockedSegment && !lockedSegment_Inc) currentSegment++;
                     }
                     else
                     {
