@@ -310,6 +310,22 @@ public class LUPickUpBase_LateUpdatePickUpBase : UdonSharpBehaviour
             SendCustomNetworkEvent(VRC.Udon.Common.Interfaces.NetworkEventTarget.Owner, "ResetPosition");
         }
     }
+    public virtual void SetPositionAndRotation(Vector3 position,Quaternion rotation)
+    {
+        if (Networking.IsOwner(this.gameObject))
+        {
+            gameObject.SetActive(true);
+            TransformCache.position = position;
+            TransformCache.rotation = rotation;
+            CalculateOffsetOnTransform(TransformCache.parent);
+            if (Pickup.IsHeld)
+            {
+                Pickup.Drop();
+            }
+            pickedFlag = false;
+            RequestSerialization();
+        }
+    }
     public override void OnOwnershipTransferred(VRC.SDKBase.VRCPlayerApi player)
     {
         Debug.Log("OwnerTransfer");
