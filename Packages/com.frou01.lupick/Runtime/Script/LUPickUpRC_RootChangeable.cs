@@ -131,6 +131,15 @@ public class LUPickUpRC_RootChangeable : LUPickUpBase_LateUpdatePickUpBase
         isTransferingColliderFlag = false;
     }
 
+    public override void SetPositionAndRotation(Vector3 position, Quaternion rotation)
+    {
+        base.SetPositionAndRotation(position, rotation);
+
+        if (Networking.IsOwner(this.gameObject))
+        {
+            StartExit();
+        }
+    }
     public override bool OnOwnershipRequest(VRC.SDKBase.VRCPlayerApi requestingPlayer, VRC.SDKBase.VRCPlayerApi requestedOwner)
     {
         return requestingPlayer == LocalPlayer || !isTransferingColliderFlag;
