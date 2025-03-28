@@ -65,6 +65,10 @@ public class LUPickUpRC_RootChangeable : LUPickUpBase_LateUpdatePickUpBase
             LUP_RC_CatcherCollider catcherCollider = other.GetComponent<LUP_RC_CatcherCollider>();
             if (catcherCollider)
             {
+                if (catcherCollider == crntCatcher)
+                {
+                    ExitWait_To_PickUp = false;
+                }
                 if (catcherCollider.isSyncOwner && Networking.IsOwner(catcherCollider.gameObject))
                 {
                     Networking.SetOwner(LocalPlayer, this.gameObject);
@@ -112,7 +116,7 @@ public class LUPickUpRC_RootChangeable : LUPickUpBase_LateUpdatePickUpBase
         }
     }
 
-    public void _reactivateCollider()
+    public virtual void _reactivateCollider()
     {
         foreach(Collider collider in colliders)
         {
