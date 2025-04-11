@@ -7,6 +7,7 @@ using VRC.Udon;
 public class LUPickUpRC_RootChangeable : LUPickUpBase_LateUpdatePickUpBase
 {
     [UdonSynced] protected int crntCatcherID = -1;
+    [UdonSynced] bool ExitWait_To_PickUp = false;
     protected Collider[] colliders;
     public override void Start()
     {
@@ -35,6 +36,15 @@ public class LUPickUpRC_RootChangeable : LUPickUpBase_LateUpdatePickUpBase
     }
     [HideInInspector] [SerializeField] public LUP_RC_ColliderManager RCCManager;
 
+    protected override void onPickInit()
+    {
+        base.onPickInit();
+        if(crntCatcher == null)
+        {
+            ExitWait_To_PickUp = false;
+            StartExit();
+        }
+    }
     protected override void onDropInit()
     {
         base.onDropInit();
@@ -55,6 +65,10 @@ public class LUPickUpRC_RootChangeable : LUPickUpBase_LateUpdatePickUpBase
             LUP_RC_CatcherCollider catcherCollider = other.GetComponent<LUP_RC_CatcherCollider>();
             if (catcherCollider)
             {
+                if (catcherCollider == crntCatcher)
+                {
+                    ExitWait_To_PickUp = false;
+                }
                 if (catcherCollider.isSyncOwner && Networking.IsOwner(catcherCollider.gameObject))
                 {
                     Networking.SetOwner(LocalPlayer, this.gameObject);
@@ -77,20 +91,32 @@ public class LUPickUpRC_RootChangeable : LUPickUpBase_LateUpdatePickUpBase
             if (catcherCollider == crntCatcher)
             {
                 crntCatcher = null;
-                if (!isTransferingColliderFlag)
+                if (pickedFlag)
                 {
-                    isTransferingColliderFlag = true;
-                    foreach (Collider collider in colliders)
-                    {
-                        collider.enabled = false;
-                    }
-                    SendCustomEventDelayedFrames(nameof(_reactivateCollider), 0, VRC.Udon.Common.Enums.EventTiming.LateUpdate);
+                    StartExit();
+                }
+                else
+                {
+                    ExitWait_To_PickUp = true;
                 }
             }
         }
     }
+    
+    private void StartExit()
+    {
+        if (!isTransferingColliderFlag)
+        {
+            isTransferingColliderFlag = true;
+            foreach (Collider collider in colliders)
+            {
+                collider.enabled = false;
+            }
+            SendCustomEventDelayedFrames(nameof(_reactivateCollider), 0, VRC.Udon.Common.Enums.EventTiming.LateUpdate);
+        }
+    }
 
-    public void _reactivateCollider()
+    public virtual void _reactivateCollider()
     {
         foreach(Collider collider in colliders)
         {
@@ -109,6 +135,15 @@ public class LUPickUpRC_RootChangeable : LUPickUpBase_LateUpdatePickUpBase
         isTransferingColliderFlag = false;
     }
 
+    public override void SetPositionAndRotation(Vector3 position, Quaternion rotation)
+    {
+        base.SetPositionAndRotation(position, rotation);
+
+        if (Networking.IsOwner(this.gameObject))
+        {
+            StartExit();
+        }
+    }
     public override bool OnOwnershipRequest(VRC.SDKBase.VRCPlayerApi requestingPlayer, VRC.SDKBase.VRCPlayerApi requestedOwner)
     {
         return requestingPlayer == LocalPlayer || !isTransferingColliderFlag;
@@ -158,7 +193,7 @@ public class LUPickUpRC_RootChangeable : LUPickUpBase_LateUpdatePickUpBase
         base.OnDeserialization();
         if (crntCatcherID == -1)
         {
-            ResetParent();
+            if(!ExitWait_To_PickUp) ResetParent();
         }
         else
         {

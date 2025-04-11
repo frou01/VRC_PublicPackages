@@ -6,11 +6,12 @@ using UnityEditor.Build.Reporting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using VRC.SDK3.Components;
+using VRC.SDKBase.Editor.BuildPipeline;
 using VRC.SDKBase.Network;
 using VRC.Udon;
 using static VRC.SDKBase.Networking;
 
-public class NoneSyncexcluder_onEditor : IProcessSceneWithReport
+public class NoneSyncexcluder_onEditor : IProcessSceneWithReport , IVRCSDKBuildRequestedCallback
 {
     public int callbackOrder => 0;
 
@@ -82,6 +83,11 @@ public class NoneSyncexcluder_onEditor : IProcessSceneWithReport
         {
             Proceed(obj);
         }
+    }
+
+    public bool OnBuildRequested(VRCSDKRequestedBuildType requestedBuildType)
+    {
+        return true;
     }
 }
 

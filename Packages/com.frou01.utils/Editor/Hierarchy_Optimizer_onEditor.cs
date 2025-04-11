@@ -4,8 +4,9 @@ using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using VRC.SDKBase.Editor.BuildPipeline;
 
-public class Hierarchy_Optimizer_onEditor : IProcessSceneWithReport
+public class Hierarchy_Optimizer_onEditor : IProcessSceneWithReport , IVRCSDKBuildRequestedCallback
 {
     public int callbackOrder => 5;
 
@@ -39,5 +40,10 @@ public class Hierarchy_Optimizer_onEditor : IProcessSceneWithReport
         {
             Proceed(obj);
         }
+    }
+
+    public bool OnBuildRequested(VRCSDKRequestedBuildType requestedBuildType)
+    {
+        return true;
     }
 }

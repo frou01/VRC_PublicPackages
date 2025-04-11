@@ -36,10 +36,11 @@ public class FloorStationController : UdonSharpBehaviour
     void Start()
     {
         local_InVehicleController = GetComponent<CharacterController>();
-        local_StationBody = GetComponent<VRCStation>();
         local_InitialControllerCenter = local_InVehicleController.center;
+        preset_Manager = transform.parent.GetComponent<VehicleInSideSeatMNG>();
         loacl_PlayerChaser = preset_Manager.preset_playerChaser;
         loacl_PlayerChaserTransform = loacl_PlayerChaser.transform;
+        local_StationBody = GetComponent<VRCStation>();
     }
     public void startSeating(int vehicleID)
     {
@@ -215,6 +216,10 @@ public class FloorStationController : UdonSharpBehaviour
             loacl_PlayerChaser.PlayerPositionScriptControlMode = false;
             loacl_PlayerChaser.PostLateUpdate();
         }
+    }
+    public override void OnOwnershipTransferred(VRC.SDKBase.VRCPlayerApi player)
+    {
+        if(player == Networking.LocalPlayer) SyncParmReset();
     }
 
     public void SyncParmReset()
