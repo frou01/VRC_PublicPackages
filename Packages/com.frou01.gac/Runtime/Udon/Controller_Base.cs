@@ -351,7 +351,6 @@ public class Controller_Base : UdonSharpBehaviour
             }
             if (currentSegment != prevSegment && UseEvent)
             {
-                Debug.Log(SendingEvent[currentSegment]);
                 if (SendingEvent[currentSegment] != null) foreach (UdonBehaviour reciver in eventReceivers) reciver.SendCustomEvent(SendingEvent[currentSegment]);
             }
             currentNormalizePosition = (leverPosition_temp - segment_points[currentSegment]) / (segment_points[currentSegment + 1] - segment_points[currentSegment]);
