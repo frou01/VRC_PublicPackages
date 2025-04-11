@@ -5,8 +5,9 @@ using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using VRC.SDKBase.Editor.BuildPipeline;
 
-public class ColliderGameObjectCullerOnBuild : IProcessSceneWithReport
+public class ColliderGameObjectCullerOnBuild : IProcessSceneWithReport , IVRCSDKBuildRequestedCallback
 {
     public int callbackOrder => 0;
 
@@ -57,5 +58,10 @@ public class ColliderGameObjectCullerOnBuild : IProcessSceneWithReport
         {
             Proceed(obj);
         }
+    }
+
+    public bool OnBuildRequested(VRCSDKRequestedBuildType requestedBuildType)
+    {
+        return true;
     }
 }

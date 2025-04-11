@@ -48,8 +48,6 @@ public class InteractActivator_HandSetter : IProcessSceneWithReport, IVRCSDKBuil
 
     public bool OnBuildRequested(VRCSDKRequestedBuildType requestedBuildType)
     {
-        Scene scene = SceneManager.GetActiveScene();
-        OnProcessScene(scene, null);
         return true;
     }
 }

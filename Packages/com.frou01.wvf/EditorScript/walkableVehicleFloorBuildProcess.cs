@@ -10,7 +10,6 @@ using UnityEngine.SceneManagement;
 using VRC.SDKBase;
 using VRC.SDKBase.Editor.BuildPipeline;
 
-[DefaultExecutionOrder(-20)]
 internal class walkableVehicleFloorBuildProcess : IProcessSceneWithReport , IVRCSDKBuildRequestedCallback
 {
     public int callbackOrder => 0;
@@ -62,13 +61,6 @@ internal class walkableVehicleFloorBuildProcess : IProcessSceneWithReport , IVRC
         }
         VISM.preset_inVehicleCollider = inVehicleCollider;
     }
-    public bool OnBuildRequested(VRCSDKRequestedBuildType requestedBuildType)
-    {
-        Scene scene = SceneManager.GetActiveScene();
-
-        OnProcessScene(scene, null);
-        return true;
-    }
 
     void Proceed_Search_VehicleInSideSeatMNG(Transform parent)
     {
@@ -104,6 +96,10 @@ internal class walkableVehicleFloorBuildProcess : IProcessSceneWithReport , IVRC
         {
             Proceed_FloorStation(obj);
         }
+    }
+    public bool OnBuildRequested(VRCSDKRequestedBuildType requestedBuildType)
+    {
+        return true;
     }
 }
 #endif

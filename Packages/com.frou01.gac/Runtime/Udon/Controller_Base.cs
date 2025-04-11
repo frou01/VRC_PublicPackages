@@ -86,7 +86,10 @@ public class Controller_Base : UdonSharpBehaviour
     bool hasSegmentArray;
     protected VRCPlayerApi.TrackingData trackingData;
 
-    [System.NonSerialized]public bool locked;
+    [System.NonSerialized]public bool locked = false;
+    [System.NonSerialized]public bool lockedSegment = false;
+    [System.NonSerialized] public bool lockedSegment_Dec = false;
+    [System.NonSerialized] public bool lockedSegment_Inc = false;
 
     void Start()
     {
@@ -252,73 +255,7 @@ public class Controller_Base : UdonSharpBehaviour
         positionUpdated = prevControllerPosition != controllerPosition;
         if (positionUpdated || currentSegment != prevSegment)
         {
-            if (hasSegmentArray)
-            {
-                float leverPosition_temp = controllerPosition;
-                prevNormalizePosition = currentNormalizePosition;
-                if (segment_points[currentSegment] > leverPosition_temp)
-                {
-                    if (currentSegment > 0)
-                    {
-                        if (isowner) currentSegment--;
-                    }
-                    else
-                    {
-                        leverPosition_temp = segment_points[currentSegment];
-                    }
-                    if (isPicked && useHaptic) localPlayer.PlayHapticEventInHand(pickup.currentHand, 0.1f, 1f, 0.5f);
-                }
-                if (segment_points[currentSegment + 1] < leverPosition_temp)
-                {
-                    if (currentSegment + 2 < segment_points.Length)
-                    {
-                        if (isowner) currentSegment++;
-                    }
-                    else
-                    {
-                        leverPosition_temp = segment_points[currentSegment + 1];
-                    }
-                    if (isPicked && useHaptic) localPlayer.PlayHapticEventInHand(pickup.currentHand, 0.1f, 1f, 0.5f);
-                }
-
-                float nearest = 360;
-                float currentDist;
-                foreach (float snap_point in snap_points)
-                {
-                    if (segment_points[currentSegment] < snap_point && snap_point < segment_points[currentSegment + 1])
-                    {
-                        currentDist = Mathf.Abs(wrapAngleTo180(nearest - leverPosition_temp));
-                        if (currentDist < nearest)
-                        {
-                            leverPosition_temp = snap_point;
-                            nearest = currentDist;
-                        }
-                    }
-                }
-                if (currentSegment != prevSegment && UseEvent)
-                {
-                    Debug.Log(SendingEvent[currentSegment]);
-                    if (SendingEvent[currentSegment] != null) foreach (UdonBehaviour reciver in eventReceivers) reciver.SendCustomEvent(SendingEvent[currentSegment]);
-                }
-                currentNormalizePosition = (leverPosition_temp - segment_points[currentSegment]) / (segment_points[currentSegment + 1] - segment_points[currentSegment]);
-
-                if (UseAnimator)
-                {
-                    if (currentNormalizePosition != prevNormalizePosition && hasNormalizedPosition)
-                    {
-                        TargetAnimator.SetFloat(normalizedPositionParamaterID, currentNormalizePosition);
-                        foreach (Animator Ananimator in MultiTargetAnimators) Ananimator.SetFloat(normalizedPositionParamaterID, currentNormalizePosition);
-                        Local_isUpdated = true;
-                    }
-                    if (currentSegment != prevSegment && hasSegments)
-                    {
-                        TargetAnimator.SetInteger(segmentsParamaterID, currentSegment);
-                        foreach (Animator Ananimator in MultiTargetAnimators) Ananimator.SetInteger(segmentsParamaterID, currentSegment);
-                        Local_isUpdated = true;
-                    }
-                }
-                if (isowner) controllerPosition = leverPosition_temp;
-            }
+            SegmentUpdate();
             prevSegment = currentSegment;
             ApplyToTransform();
         }
@@ -359,6 +296,82 @@ public class Controller_Base : UdonSharpBehaviour
 
         if ((!isPicked || !isowner) && autoDisable) fromActiveTime += Time.deltaTime;
         if (autoDisable && !isPicked && fromActiveTime > autoDisableTime) disableThis();
+    }
+
+    private void SegmentUpdate()
+    {
+        if (hasSegmentArray)
+        {
+            float leverPosition_temp = controllerPosition;
+            prevNormalizePosition = currentNormalizePosition;
+            if (segment_points[currentSegment] > leverPosition_temp)
+            {
+                if (isowner)
+                {
+                    if (currentSegment > 0 && !lockedSegment && !lockedSegment_Dec)
+                    {
+                        currentSegment--;
+                    }
+                    else
+                    {
+                        leverPosition_temp = segment_points[currentSegment];
+                    }
+                }
+                if (isPicked && useHaptic) localPlayer.PlayHapticEventInHand(pickup.currentHand, 0.1f, 1f, 0.5f);
+            }
+            if (segment_points[currentSegment + 1] < leverPosition_temp)
+            {
+                if (isowner)
+                {
+                    if (currentSegment + 2 < segment_points.Length && !lockedSegment && !lockedSegment_Inc)
+                    {
+                        currentSegment++;
+                    }
+                    else
+                    {
+                        leverPosition_temp = segment_points[currentSegment + 1];
+                    }
+                }
+                if (isPicked && useHaptic) localPlayer.PlayHapticEventInHand(pickup.currentHand, 0.1f, 1f, 0.5f);
+            }
+
+            float nearest = 360;
+            float currentDist;
+            foreach (float snap_point in snap_points)
+            {
+                if (segment_points[currentSegment] < snap_point && snap_point < segment_points[currentSegment + 1])
+                {
+                    currentDist = Mathf.Abs(wrapAngleTo180(nearest - leverPosition_temp));
+                    if (currentDist < nearest)
+                    {
+                        leverPosition_temp = snap_point;
+                        nearest = currentDist;
+                    }
+                }
+            }
+            if (currentSegment != prevSegment && UseEvent)
+            {
+                if (SendingEvent[currentSegment] != null) foreach (UdonBehaviour reciver in eventReceivers) reciver.SendCustomEvent(SendingEvent[currentSegment]);
+            }
+            currentNormalizePosition = (leverPosition_temp - segment_points[currentSegment]) / (segment_points[currentSegment + 1] - segment_points[currentSegment]);
+
+            if (UseAnimator)
+            {
+                if (currentNormalizePosition != prevNormalizePosition && hasNormalizedPosition)
+                {
+                    TargetAnimator.SetFloat(normalizedPositionParamaterID, currentNormalizePosition);
+                    foreach (Animator Ananimator in MultiTargetAnimators) Ananimator.SetFloat(normalizedPositionParamaterID, currentNormalizePosition);
+                    Local_isUpdated = true;
+                }
+                if (currentSegment != prevSegment && hasSegments)
+                {
+                    TargetAnimator.SetInteger(segmentsParamaterID, currentSegment);
+                    foreach (Animator Ananimator in MultiTargetAnimators) Ananimator.SetInteger(segmentsParamaterID, currentSegment);
+                    Local_isUpdated = true;
+                }
+            }
+            if (isowner) controllerPosition = leverPosition_temp;
+        }
     }
     private void disableThis()
     {
