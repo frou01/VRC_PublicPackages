@@ -6,12 +6,7 @@ using VRC.Udon;
 
 public class VehicleInSideSeatMNG : UdonSharpBehaviour
 {
-
-    [UdonSynced] bool dummySync;
-
-    [System.NonSerialized]public FloorStationController local_AllocatedSeat;
-
-    public FloorStationController[] preset_inVehicleStations;
+    [System.NonSerialized]public FloorStationController local_FoundStation;
 
     public CatchCollider_Vehicle[] preset_CatchColliders;
 
@@ -26,144 +21,50 @@ public class VehicleInSideSeatMNG : UdonSharpBehaviour
             preset_CatchColliders[id].local_SeatMNG = this;
             preset_CatchColliders[id].local_Id_OnSeatMNG = id;
         }
+
     }
 
     public void EnterOnVehicle(int VehicleID)
     {
-        if (local_AllocatedSeat == null)
+        if (local_FoundStation == null)
         {
-            local_AllocatedSeat = allocateSeat(Networking.LocalPlayer);
+            local_FoundStation = findStation(Networking.LocalPlayer);
         }
-        else if(local_AllocatedSeat.AllocatePlayer != Networking.LocalPlayer.playerId)
-        {
-            allocateSeatToLocal();
-        }
-        if (local_AllocatedSeat != null)
-        {
-            Debug.Log("Allocated Seat is " + local_AllocatedSeat.gameObject.name);
-            if(!local_AllocatedSeat.synced_Using) local_AllocatedSeat.startSeating(VehicleID);
-        }
-        else
-        {
-            Debug.Log("No Allocated!");
-        }
+        if (!local_FoundStation.synced_Using) local_FoundStation.startSeating(VehicleID);//auto enter only on not using
     }
-    public void InteractedOnVehicle(int VehicleID)
+    public void ForcedRidingOnVehicle(int VehicleID)
     {
-        if (local_AllocatedSeat == null)
+        if (local_FoundStation == null)
         {
-            local_AllocatedSeat = allocateSeat(Networking.LocalPlayer);
+            local_FoundStation = findStation(Networking.LocalPlayer);
         }
-        //Debug.Log("Allocated Seat is " + local_AllocatedSeat.gameObject.name);
-        if (local_AllocatedSeat != null)
-        {
-            local_AllocatedSeat.PlayerExitBounds_force();
-            local_AllocatedSeat.startSeating(VehicleID);
-        }
-        else
-        {
-            //SendCustomNetworkEvent(VRC.Udon.Common.Interfaces.NetworkEventTarget.Owner, nameof(checkAllPlayerAllocation));
-        }
+        local_FoundStation.PlayerExitBounds_force();
+        local_FoundStation.startSeating(VehicleID);
     }
     public void Exit(int VehicleID)
     {
-        if (local_AllocatedSeat != null)
-        {
-            local_AllocatedSeat.PlayerExitBounds(VehicleID);
-        }
+        local_FoundStation.PlayerExitBounds(VehicleID);
     }
-    public void allocateSeatToLocal()
+    public FloorStationController findStation(VRCPlayerApi playerApi)
     {
-        local_AllocatedSeat = allocateSeat(Networking.LocalPlayer);
-    }
-    public FloorStationController allocateSeat(VRCPlayerApi playerApi)
-    {
-        Debug.Log("allocating to ID " + playerApi.playerId);
-        FloorStationController foundSeat = null;
-        bool found = false;
-        for (int id = 0; id < preset_inVehicleStations.Length; id++)
+        //TODO Find localPlayer PlayerObject.FloorStationController Method
+        var objects = Networking.GetPlayerObjects(playerApi);
+        for (int i = 0; i < objects.Length; i++)
         {
-            FloorStationController movableSeat = preset_inVehicleStations[id];
-            Debug.Log("currentSeat_PlayerID " + movableSeat.AllocatePlayer);
-            if (!Networking.IsObjectReady(movableSeat.gameObject))
-            {
-                SendCustomEventDelayedSeconds(nameof(allocateSeatToLocal), 3);
-                return null;
-            }
-            if (movableSeat.AllocatePlayer == playerApi.playerId)
-            {
-                if (!found)
-                {
-                    foundSeat = movableSeat;
-                    found = true;
-                }
-                else
-                {
-                    movableSeat.AllocatePlayer = -1;
-                }
-            }
+            if (!Utilities.IsValid(objects[i])) continue;
+            FloorStationController foundScript = objects[i].GetComponent<FloorStationController>();
+            if (Utilities.IsValid(foundScript)) return foundScript;
         }
-        if (!found && playerApi.isLocal)
-        {
-            for (int id = 0; id < preset_inVehicleStations.Length; id++)
-            {
-                FloorStationController movableSeat = preset_inVehicleStations[id];
-                Debug.Log("currentSeatID " + movableSeat.AllocatePlayer);
-                Debug.Log("Checking_IsNull " + VRCPlayerApi.GetPlayerById(movableSeat.AllocatePlayer));
-                if(VRCPlayerApi.GetPlayerById(movableSeat.AllocatePlayer) != null) Debug.Log("Checking_IsValid " + VRCPlayerApi.GetPlayerById(movableSeat.AllocatePlayer).IsValid());
-                if (!found && (VRCPlayerApi.GetPlayerById(movableSeat.AllocatePlayer) == null || !VRCPlayerApi.GetPlayerById(movableSeat.AllocatePlayer).IsValid()))
-                {
-                    foundSeat = movableSeat;
-                    Networking.SetOwner(playerApi, foundSeat.gameObject);
-                    foundSeat.AllocatePlayer = playerApi.playerId;
-                    foundSeat.RequestSerialization();
-                    found = true;
-                    break;
-                }
-            }
-        }
-        return foundSeat;
+        Debug.LogError("Station Not Found");
+        return null;
     }
 
     public void changeStationFallback()
     {
-        if (local_AllocatedSeat == null)
+        if (local_FoundStation == null)
         {
-            local_AllocatedSeat = allocateSeat(Networking.LocalPlayer);
+            local_FoundStation = findStation(Networking.LocalPlayer);
         }
-        local_AllocatedSeat.changeStationFallback();
+        local_FoundStation.changeStationFallback();
     }
-
-    public override void OnPlayerJoined(VRCPlayerApi playerApi)
-    {
-        if (Networking.LocalPlayer.isMaster)
-        {
-            SendCustomEventDelayedSeconds(nameof(allocateSeatToLocal), 3);
-            RequestSerialization();
-        }
-    }
-
-    public override void OnDeserialization()
-    {
-        if(local_AllocatedSeat == null) SendCustomEventDelayedSeconds(nameof(allocateSeatToLocal), 1f);
-    }
-
-
-    public override void OnPlayerLeft(VRCPlayerApi playerApi)
-    {
-        for (int id = 0; id < preset_inVehicleStations.Length; id++)
-        {
-            FloorStationController movableSeat = preset_inVehicleStations[id];
-            if(movableSeat.AllocatePlayer == playerApi.playerId)
-            {
-                if (Networking.IsOwner(movableSeat.gameObject))
-                {
-                    movableSeat.AllocatePlayer = -1;
-                    movableSeat.RequestSerialization();
-                }
-            }
-        }
-    }
-
-
 }

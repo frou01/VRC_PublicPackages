@@ -22,7 +22,7 @@ public class CatchCollider_Vehicle : UdonSharpBehaviour
 
     public override void Interact() {
         //Debug.Log("Player " + Networking.LocalPlayer.displayName + " Enter Vehicle " + local_Id_OnSeatMNG);
-        local_SeatMNG.InteractedOnVehicle(local_Id_OnSeatMNG);
+        local_SeatMNG.ForcedRidingOnVehicle(local_Id_OnSeatMNG);
         DisableInteractive = true;
     }
     public void OnTriggerEnter(Collider other)
