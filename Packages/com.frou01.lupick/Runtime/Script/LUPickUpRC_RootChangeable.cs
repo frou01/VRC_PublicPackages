@@ -188,6 +188,12 @@ public class LUPickUpRC_RootChangeable : LUPickUpBase_LateUpdatePickUpBase
         crntCatcher = null;
         RequestSerialization();
     }
+
+    public override void ResetPosition()
+    {
+        base.ResetPosition();
+        ResetParent();
+    }
     public override void OnDeserialization()
     {
         base.OnDeserialization();
