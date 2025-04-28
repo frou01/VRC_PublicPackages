@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c333ccfdd0cbdbc4ca30cef2dd6e6b9b, type: 3}
   m_Name: SmartPickup_ResetSwitch
   m_EditorClassIdentifier: 
-  serializedUdonProgramAsset: {fileID: 11400000, guid: 166937928425c174ba87eb19dd3efac2,
+  serializedUdonProgramAsset: {fileID: 11400000, guid: 58e09d654a920ed4fb710625f0f9c3ae,
     type: 2}
   udonAssembly: 
   assemblyError: 
