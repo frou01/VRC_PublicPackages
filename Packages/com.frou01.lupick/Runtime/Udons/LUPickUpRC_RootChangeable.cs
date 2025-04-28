@@ -42,6 +42,7 @@ public class LUPickUpRC_RootChangeable : LUPickUpBase_LateUpdatePickUpBase
         if(crntCatcher == null)
         {
             ExitWait_To_PickUp = false;
+            crntCatcher = null;
             StartExit();
         }
     }
@@ -90,9 +91,9 @@ public class LUPickUpRC_RootChangeable : LUPickUpBase_LateUpdatePickUpBase
             LUP_RC_CatcherCollider catcherCollider = other.GetComponent<LUP_RC_CatcherCollider>();
             if (catcherCollider == crntCatcher)
             {
-                crntCatcher = null;
                 if (pickedFlag)
                 {
+                    crntCatcher = null;
                     StartExit();
                 }
                 else
