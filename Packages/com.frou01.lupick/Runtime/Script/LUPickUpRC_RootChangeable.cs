@@ -39,7 +39,7 @@ public class LUPickUpRC_RootChangeable : LUPickUpBase_LateUpdatePickUpBase
     protected override void onPickInit()
     {
         base.onPickInit();
-        if(crntCatcher == null)
+        if(ExitWait_To_PickUp)
         {
             ExitWait_To_PickUp = false;
             StartExit();
@@ -137,6 +137,15 @@ public class LUPickUpRC_RootChangeable : LUPickUpBase_LateUpdatePickUpBase
 
     public override void SetPositionAndRotation(Vector3 position, Quaternion rotation)
     {
+        if (crntCatcherID == -1)
+        {
+            ResetParent();
+        }
+        else
+        {
+            Debug.Log(crntCatcherID);
+            SetParentToCollider(RCCManager.RCCatchers[crntCatcherID]);
+        }
         base.SetPositionAndRotation(position, rotation);
 
         if (Networking.IsOwner(this.gameObject))
@@ -156,8 +165,8 @@ public class LUPickUpRC_RootChangeable : LUPickUpBase_LateUpdatePickUpBase
             ResetParent();
             return;
         }
-        if (ownerPlayer == LocalPlayer && 
-            !catcherCollider.isHook && 
+        if (ownerPlayer == LocalPlayer &&
+            !catcherCollider.isHook &&
             !this.Pickup.IsHeld && !isTransferingColliderFlag)
         {
             return;
@@ -180,26 +189,31 @@ public class LUPickUpRC_RootChangeable : LUPickUpBase_LateUpdatePickUpBase
         RequestSerialization();
     }
 
-    protected void ResetParent()
+
+    public void ResetParent()
+    {
+        this.ResetParent(true);
+    }
+
+    public void ResetParent(bool updateSyncingPos)
     {
         Debug.Log("ResetParent");
         TransformCache.parent = null;
-        CalculateOffsetOnTransform(TransformCache.parent);
+        if(updateSyncingPos) CalculateOffsetOnTransform(TransformCache.parent);
         crntCatcher = null;
-        RequestSerialization();
     }
     public override void OnDeserialization()
     {
-        base.OnDeserialization();
         if (crntCatcherID == -1)
         {
-            if(!ExitWait_To_PickUp) ResetParent();
+            ResetParent(false);
         }
         else
         {
             Debug.Log(crntCatcherID);
             SetParentToCollider(RCCManager.RCCatchers[crntCatcherID]);
         }
-        MoveObjectByOnTransformOffset(TransformCache.parent);
+        base.OnDeserialization();
+        Debug.Log("Recieve");
     }
 }
