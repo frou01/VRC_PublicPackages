@@ -323,7 +323,6 @@ public class LUPickUpBase_LateUpdatePickUpBase : UdonSharpBehaviour
                 Pickup.Drop();
             }
             pickedFlag = false;
-            RequestSerialization();
         }
     }
     public override void OnOwnershipTransferred(VRC.SDKBase.VRCPlayerApi player)
