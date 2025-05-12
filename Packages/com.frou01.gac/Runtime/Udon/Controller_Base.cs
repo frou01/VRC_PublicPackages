@@ -491,6 +491,7 @@ public class Controller_Base : UdonSharpBehaviour
                 foreach (Animator Ananimator in MultiTargetAnimators) Ananimator.SetFloat(positionParamaterID, controllerPosition);
             }
         }
+        ApplyToTransform();
     }
     public override void OnOwnershipTransferred(VRC.SDKBase.VRCPlayerApi player)
     {

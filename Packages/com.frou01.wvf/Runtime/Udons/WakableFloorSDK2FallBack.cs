@@ -15,6 +15,6 @@ public class WakableFloorSDK2FallBack : UdonSharpBehaviour
     public override void Interact()
     {
         preset_SeatMNG.changeStationFallback();
-        InteractionText = preset_SeatMNG.local_AllocatedSeat.SDK2Fallback ? "Change To SDK3Mode": "Change To SDK2Mode";
+        InteractionText = preset_SeatMNG.local_FoundStation.SDK2Fallback ? "Change To SDK3Mode": "Change To SDK2Mode";
     }
 }
