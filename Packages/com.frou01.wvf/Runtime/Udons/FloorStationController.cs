@@ -13,7 +13,7 @@ public class FloorStationController : UdonSharpBehaviour
     private Transform loacl_PlayerChaserTransform;
     private CharacterController local_InVehicleController;
 
-    private VRCStation local_StationBody;
+    private VRC.SDKBase.VRCStation local_StationBody;
     public Transform preset_sittingTransform;
     public Transform preset_exit___Position;
 
@@ -26,6 +26,7 @@ public class FloorStationController : UdonSharpBehaviour
     VRCPlayerApi.TrackingData local_trackingData;
     VRCPlayerApi local_playerApi;
     [System.NonSerialized] [UdonSynced(UdonSyncMode.None)] public bool synced_Using;
+    bool local_isOwner;
 
     public bool isSDK2Mode;
     public Animator seatedSetter;
@@ -40,7 +41,9 @@ public class FloorStationController : UdonSharpBehaviour
         preset_Manager = transform.parent.GetComponent<VehicleInSideSeatMNG>();
         loacl_PlayerChaser = preset_Manager.preset_playerChaser;
         loacl_PlayerChaserTransform = loacl_PlayerChaser.transform;
-        local_StationBody = GetComponent<VRCStation>();
+        local_StationBody = GetComponent<VRC.SDKBase.VRCStation>();
+        local_isOwner = Networking.IsOwner(this.gameObject);
+        Debug.Log("local_isOwner " + local_isOwner);
     }
     public void startSeating(int vehicleID)
     {
@@ -56,14 +59,12 @@ public class FloorStationController : UdonSharpBehaviour
         local_VehicleObject = local_catchCollider.vehicleObject;
         local_inVehicleCollider = local_catchCollider.inVehicleCollider;
         global_targetVehicleID = vehicleID;
-
+        this.local_playerApi = Networking.LocalPlayer;
     }
     public void startSeating()
     {
 
 
-        this.local_playerApi = Networking.LocalPlayer;
-        Networking.SetOwner(local_playerApi, gameObject);
 
         //setUp Hierarchy
         preset_sittingTransform.parent = loacl_PlayerChaserTransform.parent = local_VehicleObject.transform;
@@ -115,7 +116,7 @@ public class FloorStationController : UdonSharpBehaviour
         if (synced_targetVehicleID != global_targetVehicleID) excuteSync = true;
         if (synced_Using && local_VehicleObject != null)
         {
-            if (Networking.IsOwner(this.gameObject))
+            if (local_isOwner)
             {
                 preset_sittingTransform.localPosition = loacl_PlayerChaserTransform.localPosition = position = transform.localPosition;
                 local_trackingData = local_playerApi.GetTrackingData(VRCPlayerApi.TrackingDataType.Head);
@@ -136,7 +137,7 @@ public class FloorStationController : UdonSharpBehaviour
                 if (position != syncedPosition || rotation != syncedRotation) excuteSync = true;
             }
         }
-        if (!Networking.IsOwner(this.gameObject))
+        if (!local_isOwner)
         {
             FromLastExcuteSync += Time.deltaTime;
             position = Vector3.Lerp(prevSyncedPosition, syncedPosition, FromLastExcuteSync / syncInterval);
@@ -160,12 +161,8 @@ public class FloorStationController : UdonSharpBehaviour
         if (synced_Using && local_VehicleObject != null)
         {
             if (!Utilities.IsValid(local_playerApi)) return;
-            if (Networking.IsOwner(this.gameObject))
+            if (local_isOwner)
             {
-                if (!Networking.IsOwner(local_InVehicleController.gameObject))
-                {
-                    Networking.SetOwner(local_playerApi, local_InVehicleController.gameObject);
-                }
                 Quaternion proxyQuat = (Quaternion.Inverse(local_VehicleObject.transform.rotation) * local_trackingData.rotation);
                 proxyQuat = Quaternion.Euler(0, proxyQuat.eulerAngles.y, 0);
                 local_moveVelocity.x = 0;
@@ -241,8 +238,6 @@ public class FloorStationController : UdonSharpBehaviour
     int prev_targetVehicleID = -1;
     public override void OnDeserialization()
     {
-        Debug.Log("syncedPosition " + syncedPosition);
-        Debug.Log("syncedRotation " + syncedRotation);
         prevSyncedPosition = position;
         prevSyncedRotation = rotation;
         if(prev_targetVehicleID != global_targetVehicleID)

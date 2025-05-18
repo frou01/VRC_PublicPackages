@@ -1,7 +1,7 @@
 {
   "name": "com.frou01.wvf",
   "displayName": "frou01.Walkable Vehicle Floor",
-  "version": "5.0.3",
+  "version": "6.1.0",
   "unity": "2022.3",
   "description": "Controllable Stations prefab for walking inside vehicle on VRChat",
   "vpmDependencies": {

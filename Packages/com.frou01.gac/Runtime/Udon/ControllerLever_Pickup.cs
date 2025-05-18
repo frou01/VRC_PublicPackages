@@ -58,10 +58,18 @@ namespace frou01.GrabController
         {
             Gizmos.color = new Color(1, 1, 1);
             foreach (float segment_point in segment_points)
-                Gizmos.DrawLine(controllerTransform.position, controllerTransform.position + controllerTransform.parent.rotation * Quaternion.Euler(0, segment_point, 0) * (new Vector3(0, 0, 1)));
+            {
+                Vector3 temp = Quaternion.Euler(0, segment_point, 0) * (new Vector3(0, 0, 1));
+                temp.Scale(controllerTransform.parent.lossyScale);
+                Gizmos.DrawLine(controllerTransform.position, controllerTransform.position + controllerTransform.parent.rotation * temp);
+            }
             Gizmos.color = new Color(1,0,0);
             foreach (float snap_point in snap_points)
-                Gizmos.DrawLine(controllerTransform.position, controllerTransform.position + controllerTransform.parent.rotation * Quaternion.Euler(0, snap_point, 0) * (new Vector3(0, 0, 1)));
+            {
+                Vector3 temp = Quaternion.Euler(0, snap_point, 0) * (new Vector3(0, 0, 1));
+                temp.Scale(controllerTransform.parent.lossyScale);
+                Gizmos.DrawLine(controllerTransform.position, controllerTransform.position + controllerTransform.parent.rotation * temp);
+            }
         }
     }
 }

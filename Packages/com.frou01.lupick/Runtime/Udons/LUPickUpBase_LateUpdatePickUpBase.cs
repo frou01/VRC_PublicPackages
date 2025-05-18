@@ -288,7 +288,7 @@ public class LUPickUpBase_LateUpdatePickUpBase : UdonSharpBehaviour
         }
         //doubleTap
     }
-    public void ResetPosition()
+    public virtual void ResetPosition()
     {
         gameObject.SetActive(true);
         TransformCache.localPosition = First_Pos;

@@ -19,25 +19,18 @@ internal class walkableVehicleFloorBuildProcess : IProcessSceneWithReport , IVRC
 
     public VehicleInSideSeatMNG VISM;
     public List<CatchCollider_Vehicle> target_CatchCollider_Vehicle = new List<CatchCollider_Vehicle>();
-    public List<FloorStationController> target_FloorStationController = new List<FloorStationController>();
 
     public void OnProcessScene(Scene scene, BuildReport report)
     {
         target_CatchCollider_Vehicle = new List<CatchCollider_Vehicle>();
-        target_FloorStationController = new List<FloorStationController>();
         foreach (GameObject obj in scene.GetRootGameObjects())
         {
             Proceed_Search_VehicleInSideSeatMNG(obj.transform);
-        }
-        foreach (GameObject obj in scene.GetRootGameObjects())
-        {
-            Proceed_FloorStation(obj.transform);
         }
         Debug.Log("Processing");
         if (VISM == null) return;
         VISM.transform.localPosition = Vector3.zero;
         VISM.preset_CatchColliders = target_CatchCollider_Vehicle.ToArray();
-        VISM.preset_inVehicleStations = target_FloorStationController.ToArray();
         GameObject[] inVehicleCollider = new GameObject[target_CatchCollider_Vehicle.Count];
         int index = 0;
         foreach (CatchCollider_Vehicle CCV in target_CatchCollider_Vehicle)
@@ -60,6 +53,7 @@ internal class walkableVehicleFloorBuildProcess : IProcessSceneWithReport , IVRC
             index++;
         }
         VISM.preset_inVehicleCollider = inVehicleCollider;
+        Debug.Log("Done");
     }
 
     void Proceed_Search_VehicleInSideSeatMNG(Transform parent)
@@ -78,23 +72,6 @@ internal class walkableVehicleFloorBuildProcess : IProcessSceneWithReport , IVRC
         foreach (Transform obj in parent)
         {
             Proceed_Search_VehicleInSideSeatMNG(obj);
-        }
-    }
-
-    void Proceed_FloorStation(Transform parent)
-    {
-        if (parent.gameObject != null)
-        {
-            if (parent.gameObject.GetComponent<FloorStationController>() != null)
-            {
-                parent.gameObject.GetComponent<FloorStationController>().preset_Manager = VISM;
-                parent.gameObject.transform.parent = VISM.transform;
-                target_FloorStationController.Add(parent.gameObject.GetComponent<FloorStationController>());
-            }
-        }
-        foreach (Transform obj in parent)
-        {
-            Proceed_FloorStation(obj);
         }
     }
     public bool OnBuildRequested(VRCSDKRequestedBuildType requestedBuildType)

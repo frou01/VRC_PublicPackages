@@ -42,6 +42,7 @@ public class LUPickUpRC_RootChangeable : LUPickUpBase_LateUpdatePickUpBase
         if(ExitWait_To_PickUp)
         {
             ExitWait_To_PickUp = false;
+            crntCatcher = null;
             StartExit();
         }
     }
@@ -90,9 +91,9 @@ public class LUPickUpRC_RootChangeable : LUPickUpBase_LateUpdatePickUpBase
             LUP_RC_CatcherCollider catcherCollider = other.GetComponent<LUP_RC_CatcherCollider>();
             if (catcherCollider == crntCatcher)
             {
-                crntCatcher = null;
                 if (pickedFlag)
                 {
+                    crntCatcher = null;
                     StartExit();
                 }
                 else
@@ -201,6 +202,12 @@ public class LUPickUpRC_RootChangeable : LUPickUpBase_LateUpdatePickUpBase
         TransformCache.parent = null;
         if(updateSyncingPos) CalculateOffsetOnTransform(TransformCache.parent);
         crntCatcher = null;
+    }
+
+    public override void ResetPosition()
+    {
+        base.ResetPosition();
+        ResetParent();
     }
     public override void OnDeserialization()
     {
