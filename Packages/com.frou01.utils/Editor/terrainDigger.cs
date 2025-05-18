@@ -22,7 +22,7 @@ public class terrainDigger : MonoBehaviour
 
     public Terrain target;
 
-    public CinemachineSmoothPath path;
+    public CinemachinePathBase path;
     public float start;
     public float end;
 
@@ -38,8 +38,8 @@ public class terrainDigger : MonoBehaviour
         int pickSquarex = 1 + (int)(range / terrainData.size.x * (float)(heights.GetLength(0)-1));
         int pickSquarez = 1 + (int)(range / terrainData.size.z * (float)(heights.GetLength(1)-1));
 
-        Debug.Log(pickSquarex);
-        Debug.Log(pickSquarez);
+        //Debug.Log(pickSquarex);
+        //Debug.Log(pickSquarez);
         //int braker = 0;
         for (float step = start; step <= end; step += range/2)
         {
@@ -48,7 +48,7 @@ public class terrainDigger : MonoBehaviour
             onTerrainPos -= target.transform.position;
             int onPathX = (int)Mathf.Floor(onTerrainPos.x / terrainData.size.x * (float)(heights.GetLength(0)-1));
             int onPathZ = (int)Mathf.Floor(onTerrainPos.z / terrainData.size.z * (float)(heights.GetLength(1)-1));
-            Debug.Log(step);
+            //Debug.Log(step);
             EditorUtility.DisplayProgressBar("TerrainDigger", "Digging...", (step - start) / (end - start));
             //braker++;
             for (int xID = onPathX - pickSquarex; (xID <= onPathX + pickSquarex && xID < heights.GetLength(0)); xID++)
@@ -71,7 +71,7 @@ public class terrainDigger : MonoBehaviour
                     Vector3 closestPos = path.EvaluatePosition(closestUnit);
                     if ((targetPos - (closestPos - new Vector3(0, closestPos.y, 0))).sqrMagnitude > range * range) continue;
 
-                    Debug.Log(xID + " , " + zID);
+                    //Debug.Log(xID + " , " + zID);
                     heights[zID, xID] = (heightOffset + closestPos.y - target.transform.position.y) / terrainData.size.y;
                     //if (braker > 10000) break;
                 }
