@@ -44,7 +44,6 @@ public class NoneSyncexcluder : MonoBehaviour
                 {
                     if (anUdon.SyncMethod != SyncType.None)
                     {
-                        Debug.Log(pair.gameObject.name);
                         OK = true;
                     }
                 }
@@ -52,6 +51,12 @@ public class NoneSyncexcluder : MonoBehaviour
                 {
                     pair.ID = 10 + CheckedList.Count;
                     CheckedList.Add(pair);
+                    continue;
+                }
+
+                if (!OK)
+                {
+                    Debug.Log("NoneSync, but assigned " + pair.gameObject.name);
                 }
             }
         }

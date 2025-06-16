@@ -4,9 +4,11 @@ using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using VRC.SDK3.Components;
 using VRC.SDKBase.Editor.BuildPipeline;
+using VRC.Udon;
 
-public class InteractActivator_HandSetter : IProcessSceneWithReport, IVRCSDKBuildRequestedCallback
+public class InteractActivator_HandSetter : IProcessSceneWithReport
 {
     public int callbackOrder => 0;
 
@@ -27,6 +29,14 @@ public class InteractActivator_HandSetter : IProcessSceneWithReport, IVRCSDKBuil
             Debug.Log(IA);
             IA.handL = playerChaser.HandL;
             IA.handR = playerChaser.HandR;
+            foreach(UdonBehaviour udon in IA.gameObject.GetComponents<UdonBehaviour>())
+            {
+                udon.proximity = 1000;
+            }
+            foreach (VRCPickup pickup in IA.gameObject.GetComponents<VRCPickup>())
+            {
+                pickup.proximity = 1000;
+            }
         }
     }
 

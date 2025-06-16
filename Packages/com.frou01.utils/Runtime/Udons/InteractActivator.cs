@@ -31,7 +31,7 @@ public class InteractActivator : UdonSharpBehaviour
             this.enabled = false;
         }
     }
-    public void Update()
+    public override void PostLateUpdate()
     {
         Vector3 pos = transform.position;
         if (Vector3.Distance(handL.position, pos) < proximity ||
@@ -64,5 +64,9 @@ public class InteractActivator : UdonSharpBehaviour
         {
             ((UdonBehaviour)com).DisableInteractive = !state;
         }
+    }
+
+    public override void Interact()
+    {
     }
 }
