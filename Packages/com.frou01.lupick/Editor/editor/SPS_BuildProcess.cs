@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using UdonSharpEditor;
 using UnityEditor.Build;
 using UnityEditor.Build.Reporting;
 using UnityEngine;
@@ -26,7 +27,7 @@ public class SPS_BuildProcess : IProcessSceneWithReport
         if(RCCManager == null)
         {
             GameObject go = new GameObject();
-            go.AddComponent<LUP_RC_ColliderManager>();
+            go.AddUdonSharpComponent<LUP_RC_ColliderManager>();
             RCCManager = go.GetComponent<LUP_RC_ColliderManager>();
         }
         if (RCCManager != null)
