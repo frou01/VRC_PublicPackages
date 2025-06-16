@@ -12,6 +12,8 @@ public class LUPickUpRC_RootChangeable : LUPickUpBase_LateUpdatePickUpBase
     public override void Start()
     {
         base.Start();
+        crntCatcher = GetComponentInParent<LUP_RC_CatcherCollider>();
+        SetParentToCollider(crntCatcher);
         colliders = GetComponentsInChildren<Collider>();
     }
     private LUP_RC_CatcherCollider m_crntCatcher;
@@ -79,6 +81,7 @@ public class LUPickUpRC_RootChangeable : LUPickUpBase_LateUpdatePickUpBase
                     return;
                 }
                 SetParentToCollider(catcherCollider);
+                RequestSerialization();
             }
         }
     }
@@ -146,6 +149,7 @@ public class LUPickUpRC_RootChangeable : LUPickUpBase_LateUpdatePickUpBase
         {
             Debug.Log(crntCatcherID);
             SetParentToCollider(RCCManager.RCCatchers[crntCatcherID]);
+            RequestSerialization();
         }
         base.SetPositionAndRotation(position, rotation);
 
@@ -187,7 +191,6 @@ public class LUPickUpRC_RootChangeable : LUPickUpBase_LateUpdatePickUpBase
             this.Pickup.Drop();
         }
 
-        RequestSerialization();
     }
 
 

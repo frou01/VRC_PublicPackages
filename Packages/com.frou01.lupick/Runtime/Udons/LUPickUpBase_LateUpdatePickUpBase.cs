@@ -345,5 +345,8 @@ public class LUPickUpBase_LateUpdatePickUpBase : UdonSharpBehaviour
     {
         RequestSerialization();
     }
+    public override void Interact()
+    {
+    }
 
 }
