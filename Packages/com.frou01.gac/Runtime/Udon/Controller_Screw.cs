@@ -84,5 +84,8 @@ namespace frou01.GrabController
             controllerAngle = controllerAngle < -180 ? controllerAngle + 360 : controllerAngle;
             return controllerAngle;
         }
+        public override void Interact()
+        {
+        }
     }
 }

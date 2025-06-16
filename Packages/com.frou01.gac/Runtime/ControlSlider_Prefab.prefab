@@ -92,7 +92,7 @@ MonoBehaviour:
   interactTextPlacement: {fileID: 0}
   interactText: Use
   interactTextGO: {fileID: 0}
-  proximity: 2
+  proximity: 100
   SynchronizePosition: 0
   AllowCollisionOwnershipTransfer: 0
   Reliable: 0

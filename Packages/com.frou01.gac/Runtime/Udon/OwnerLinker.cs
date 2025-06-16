@@ -34,5 +34,8 @@ namespace frou01.GrabController
                 Networking.SetOwner(player, objects[i]);
             }
         }
+        public override void Interact()
+        {
+        }
     }
 }
