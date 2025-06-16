@@ -9,8 +9,8 @@ public class FloorStationController : UdonSharpBehaviour
 {
     public VehicleInSideSeatMNG preset_Manager;
 
-    private PlayerChaser loacl_PlayerChaser;
-    private Transform loacl_PlayerChaserTransform;
+    private PlayerChaser local_PlayerChaser;
+    private Transform local_PlayerChaserTransform;
     private CharacterController local_InVehicleController;
 
     private VRC.SDKBase.VRCStation local_StationBody;
@@ -39,8 +39,8 @@ public class FloorStationController : UdonSharpBehaviour
         local_InVehicleController = GetComponent<CharacterController>();
         local_InitialControllerCenter = local_InVehicleController.center;
         preset_Manager = transform.parent.GetComponent<VehicleInSideSeatMNG>();
-        loacl_PlayerChaser = preset_Manager.preset_playerChaser;
-        loacl_PlayerChaserTransform = loacl_PlayerChaser.transform;
+        local_PlayerChaser = preset_Manager.preset_playerChaser;
+        local_PlayerChaserTransform = local_PlayerChaser.transform;
         local_StationBody = GetComponent<VRC.SDKBase.VRCStation>();
         local_isOwner = Networking.IsOwner(this.gameObject);
         Debug.Log("local_isOwner " + local_isOwner);
@@ -67,12 +67,12 @@ public class FloorStationController : UdonSharpBehaviour
 
 
         //setUp Hierarchy
-        preset_sittingTransform.parent = loacl_PlayerChaserTransform.parent = local_VehicleObject.transform;
+        preset_sittingTransform.parent = local_PlayerChaserTransform.parent = local_VehicleObject.transform;
         local_InVehicleController.enabled = true;
         local_inVehicleCollider.SetActive(true);
 
         //setUp Position/Rotation
-        loacl_PlayerChaser.PlayerPositionScriptControlMode = true;
+        local_PlayerChaser.PlayerPositionScriptControlMode = true;
         preset_sittingTransform.localPosition = local_InVehicleController.gameObject.transform.localPosition = local_VehicleObject.transform.InverseTransformPoint(local_playerApi.GetPosition());
         Quaternion temp = local_playerApi.GetRotation() * Quaternion.Inverse(local_VehicleObject.transform.rotation);
         tempFlag_resetRolling = true;
@@ -118,7 +118,7 @@ public class FloorStationController : UdonSharpBehaviour
         {
             if (local_isOwner)
             {
-                preset_sittingTransform.localPosition = loacl_PlayerChaserTransform.localPosition = position = transform.localPosition;
+                preset_sittingTransform.localPosition = local_PlayerChaserTransform.localPosition = position = transform.localPosition;
                 local_trackingData = local_playerApi.GetTrackingData(VRCPlayerApi.TrackingDataType.Head);
                 ControllerToHead = local_VehicleObject.transform.InverseTransformPoint(local_trackingData.position) - transform.localPosition;
                 ControllerToHead = Quaternion.Inverse(transform.localRotation) * ControllerToHead;
@@ -132,7 +132,7 @@ public class FloorStationController : UdonSharpBehaviour
                 if (tempFlag_resetRolling) transform.localRotation = Quaternion.Euler(0, transform.localRotation.eulerAngles.y, 0);
                 tempFlag_resetRolling = false;
 
-                preset_sittingTransform.localRotation = loacl_PlayerChaserTransform.localRotation = rotation = transform.localRotation;
+                preset_sittingTransform.localRotation = local_PlayerChaserTransform.localRotation = rotation = transform.localRotation;
 
                 if (position != syncedPosition || rotation != syncedRotation) excuteSync = true;
             }
@@ -193,9 +193,9 @@ public class FloorStationController : UdonSharpBehaviour
 
             local_InVehicleController.enabled = false;
             if(local_inVehicleCollider != null) local_inVehicleCollider.gameObject.SetActive(false);
-            loacl_PlayerChaserTransform.parent = null;
-            loacl_PlayerChaser.PlayerPositionScriptControlMode = false;
-            loacl_PlayerChaser.PostLateUpdate();
+            local_PlayerChaserTransform.parent = null;
+            local_PlayerChaser.PlayerPositionScriptControlMode = false;
+            local_PlayerChaser.PostLateUpdate();
         }
     }
     public void PlayerExitBounds(int VehicleID)
@@ -209,9 +209,9 @@ public class FloorStationController : UdonSharpBehaviour
             
             local_InVehicleController.enabled = false;
             if (local_inVehicleCollider != null) local_inVehicleCollider.gameObject.SetActive(false);
-            loacl_PlayerChaserTransform.parent = null;
-            loacl_PlayerChaser.PlayerPositionScriptControlMode = false;
-            loacl_PlayerChaser.PostLateUpdate();
+            local_PlayerChaserTransform.parent = null;
+            local_PlayerChaser.PlayerPositionScriptControlMode = false;
+            local_PlayerChaser.PostLateUpdate();
         }
     }
     public override void OnOwnershipTransferred(VRC.SDKBase.VRCPlayerApi player)
