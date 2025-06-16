@@ -7,7 +7,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using VRC.SDKBase.Editor.BuildPipeline;
 
-public class SPS_BuildProcess : IProcessSceneWithReport , IVRCSDKBuildRequestedCallback
+public class SPS_BuildProcess : IProcessSceneWithReport
 {
     public int callbackOrder => 0;
     LUP_RC_ColliderManager RCCManager = null;
