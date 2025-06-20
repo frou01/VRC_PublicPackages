@@ -12,5 +12,8 @@
     "email": "frou01stg44hurutaka@gmail.com"
   },
   "legacyFolders": {},
-  "legacyFiles": {}
+  "legacyFiles": {},
+  "dependencies": {
+    "com.vrchat.worlds": "3.7.4"
+  }
 }
