@@ -12,5 +12,9 @@
     "email": "frou01stg44hurutaka@gmail.com"
   },
   "legacyFolders": {},
-  "legacyFiles": {}
+  "legacyFiles": {},
+  "dependencies": {
+    "com.unity.cinemachine": "2.9.7",
+    "com.vrchat.worlds": "3.7.4"
+  }
 }
