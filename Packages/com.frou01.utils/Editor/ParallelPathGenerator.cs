@@ -99,7 +99,7 @@ public class ParallelPathGenerator : EditorWindow
             {
                 int srcIndex = doFlip ? newPoints.Length - 1 - i : i;
                 newPath.m_Waypoints[i].position = newPath.transform.InverseTransformPoint(newPoints[i]);
-                newPath.m_Waypoints[i].roll = sourcePath.m_Waypoints[srcIndex].roll;
+                newPath.m_Waypoints[i].roll = sourcePath.m_Waypoints[srcIndex].roll * (doFlip ? -1 : 1);
             }
 
             newPath.m_Looped = sourcePath.m_Looped;
