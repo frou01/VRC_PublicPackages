@@ -1,7 +1,7 @@
 {
   "name": "com.frou01.utils",
   "displayName": "frou01.Utilty",
-  "version": "6.2.1",
+  "version": "6.3.0",
   "unity": "2022.3",
   "description": "Some tools for Unity. Fix nasty bug of Editor, Optimize on runtime, Simple but important gimics for VRC.",
   "vpmDependencies": {
