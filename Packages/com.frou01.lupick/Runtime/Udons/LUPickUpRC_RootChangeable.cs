@@ -7,8 +7,11 @@ using VRC.Udon;
 public class LUPickUpRC_RootChangeable : LUPickUpBase_LateUpdatePickUpBase
 {
     [UdonSynced] protected int crntCatcherID = -1;
-    [UdonSynced] bool ExitWait_To_PickUp = false;
+    [UdonSynced] bool ExitWait_To_PickUp = false;//Issue collider check
     protected Collider[] colliders;
+    [SerializeField] public bool Tags_ExcludeExceptMode;
+    [SerializeField] public string[] ExceptCatcherTags = new string[0];
+    [SerializeField] public string[] PickupTags = new string[0];
     public override void Start()
     {
         base.Start();
@@ -45,7 +48,7 @@ public class LUPickUpRC_RootChangeable : LUPickUpBase_LateUpdatePickUpBase
         {
             ExitWait_To_PickUp = false;
             crntCatcher = null;
-            StartExit();
+            StartExit();//check Collider
         }
     }
     protected override void onDropInit()
@@ -68,9 +71,10 @@ public class LUPickUpRC_RootChangeable : LUPickUpBase_LateUpdatePickUpBase
             LUP_RC_CatcherCollider catcherCollider = other.GetComponent<LUP_RC_CatcherCollider>();
             if (catcherCollider)
             {
+                if (!CheckTags(catcherCollider)) return;
                 if (catcherCollider == crntCatcher)
                 {
-                    ExitWait_To_PickUp = false;
+                    ExitWait_To_PickUp = false;//ColliderCheck OK
                 }
                 if (catcherCollider.isSyncOwner && Networking.IsOwner(catcherCollider.gameObject))
                 {
@@ -85,6 +89,37 @@ public class LUPickUpRC_RootChangeable : LUPickUpBase_LateUpdatePickUpBase
             }
         }
     }
+
+    protected virtual bool CheckTags(LUP_RC_CatcherCollider catcherCollider)
+    {
+        bool catchColliderExceptTag_Hit = true;
+        foreach(string exceptPickupTag in catcherCollider.ExceptPickupTags)
+        {
+            foreach (string PickupTags in PickupTags)
+            {
+                if (exceptPickupTag.Equals(PickupTags)) catchColliderExceptTag_Hit = false;
+            }
+        }
+        bool pickupExceptTag_Hit = true;
+        foreach (string exceptCatcherTag in ExceptCatcherTags)
+        {
+            foreach (string CatcherTags in catcherCollider.CatcherTags)
+            {
+                if (exceptCatcherTag.Equals(CatcherTags)) pickupExceptTag_Hit = false;
+            }
+        }
+        if (catcherCollider.Tags_ExcludeExceptMode)
+        {
+            catchColliderExceptTag_Hit = !catchColliderExceptTag_Hit;
+        }
+        if (Tags_ExcludeExceptMode)
+        {
+            pickupExceptTag_Hit = !pickupExceptTag_Hit;
+        }
+
+        return catchColliderExceptTag_Hit && pickupExceptTag_Hit;
+    }
+
     protected bool isTransferingColliderFlag = false;
     private void OnTriggerExit(Collider other)
     {
