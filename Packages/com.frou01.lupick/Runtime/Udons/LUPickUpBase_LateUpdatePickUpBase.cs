@@ -43,6 +43,7 @@ public class LUPickUpBase_LateUpdatePickUpBase : UdonSharpBehaviour
 
     protected bool isOwnerTransferredFlag = false;
     protected bool isThefting = false;
+    protected bool onThefting_RightHand = false;
     //------------------------------------------
 
 
@@ -130,8 +131,11 @@ public class LUPickUpBase_LateUpdatePickUpBase : UdonSharpBehaviour
             {
                 if (Utilities.IsValid(prevOwner))
                 {
+                    bool localRightHand = RightHand;
+                    RightHand = onThefting_RightHand;
                     FetchTrackingData(prevOwner);
                     MoveObjectByBone();
+                    RightHand = localRightHand;
                 }
                 else
                 {
@@ -266,6 +270,7 @@ public class LUPickUpBase_LateUpdatePickUpBase : UdonSharpBehaviour
     public override void OnPickup()
     {
         isThefting = pickedFlag;
+        onThefting_RightHand = RightHand;
         pickedFlag = true;
         pickInitFlag = true;
         dropInitFlag = false;
