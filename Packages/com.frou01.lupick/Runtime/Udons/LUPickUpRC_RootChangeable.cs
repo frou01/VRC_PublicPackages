@@ -58,8 +58,7 @@ public class LUPickUpRC_RootChangeable : LUPickUpBase_LateUpdatePickUpBase
         {
             if (crntCatcher.dropTarget)
             {
-                TransformCache.position = crntCatcher.dropTarget.position;
-                TransformCache.rotation = crntCatcher.dropTarget.rotation;
+                moveToDropPoint();
                 CalculateOffsetOnTransform(TransformCache.parent);
             }
         }
@@ -216,8 +215,7 @@ public class LUPickUpRC_RootChangeable : LUPickUpBase_LateUpdatePickUpBase
         TransformCache.parent = crntCatcher.transform;
         if (crntCatcher.dropTarget)
         {
-            TransformCache.position = crntCatcher.dropTarget.position;
-            TransformCache.rotation = crntCatcher.dropTarget.rotation;
+            moveToDropPoint();
         }
         CalculateOffsetOnTransform(TransformCache.parent);
         if (crntCatcher.isHook)
@@ -226,6 +224,35 @@ public class LUPickUpRC_RootChangeable : LUPickUpBase_LateUpdatePickUpBase
             this.Pickup.Drop();
         }
 
+    }
+
+    protected virtual void moveToDropPoint()
+    {
+        Transform selectedTarget = null;
+        if(crntCatcher.dropTarget.childCount > 0)
+        {
+            float minimumScore = -1;
+            foreach (Transform snapPoint in crntCatcher.dropTarget)
+            {
+                float angleToSnap = Quaternion.Angle(snapPoint.rotation, TransformCache.rotation);
+                float toDistance = Vector3.Distance(snapPoint.position, TransformCache.position);
+                float currentScore = angleToSnap * toDistance;
+                if(currentScore < minimumScore || minimumScore == -1)
+                {
+                    selectedTarget = snapPoint;
+                    minimumScore = currentScore;
+                }
+            }
+        }
+        else
+        {
+            selectedTarget = crntCatcher.dropTarget;
+        }
+        if(selectedTarget != null)
+        {
+            TransformCache.position = selectedTarget.position;
+            TransformCache.rotation = selectedTarget.rotation;
+        }
     }
 
 
