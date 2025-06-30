@@ -325,7 +325,7 @@ public class LUPickUpBase_LateUpdatePickUpBase : UdonSharpBehaviour
             SendCustomNetworkEvent(VRC.Udon.Common.Interfaces.NetworkEventTarget.Owner, "ResetPosition");
         }
     }
-    public virtual void SetPositionAndRotation(Vector3 position,Quaternion rotation)
+    public virtual void SetPositionAndRotation_OwnerOnly(Vector3 position,Quaternion rotation)
     {
         if (Networking.IsOwner(this.gameObject))
         {

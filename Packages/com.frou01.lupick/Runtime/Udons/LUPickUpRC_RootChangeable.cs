@@ -43,15 +43,62 @@ public class LUPickUpRC_RootChangeable : LUPickUpBase_LateUpdatePickUpBase
     }
     [HideInInspector] [SerializeField] public LUP_RC_ColliderManager RCCManager;
 
+
+    Vector3 LastFixed__Position;
+    Vector3 LUP_CurrentPosition;
+    Quaternion LastFixed__Rotation;
+    Quaternion LUP_CurrentRotation;
+    public override void PostLateUpdate()
+    {
+        base.PostLateUpdate();
+
+        if (pickedFlag)
+        {
+            LUP_CurrentPosition = TransformCache.position;
+            LUP_CurrentRotation = TransformCache.rotation;
+        }
+    }
+    protected virtual void FixedUpdate()
+    {
+        if (pickedFlag)
+        {
+            TransformCache.position = LastFixed__Position;
+            TransformCache.rotation = LastFixed__Rotation;
+            PickupRigidBody.Move(LUP_CurrentPosition, LUP_CurrentRotation);
+            LastFixed__Position = LUP_CurrentPosition;
+            LastFixed__Rotation = LUP_CurrentRotation;
+        }
+    }
     protected override void onPickInit_OwnerOnly()
     {
         base.onPickInit_OwnerOnly();
+        if (crntCatcher)
+        {
+            if (crntCatcher.isSyncOwner)
+            {
+                Networking.SetOwner(LocalPlayer, crntCatcher.gameObject);
+            }
+            Collider[] catcherColliders = crntCatcher.GetComponents<Collider>();
+            bool isEnable = false;
+            foreach (Collider collider in catcherColliders)
+            {
+                isEnable |= collider.enabled;
+            }
+            if (!isEnable)
+            {
+                StartExit();
+            }
+        }
         if(ExitWait_To_PickUp)
         {
             ExitWait_To_PickUp = false;
             crntCatcher = null;
             StartExit();//check Collider
         }
+        LUP_CurrentPosition = TransformCache.position;
+        LUP_CurrentRotation = TransformCache.rotation;
+        LastFixed__Position = LUP_CurrentPosition;
+        LastFixed__Rotation = LUP_CurrentRotation;
     }
     protected override void onDropInit_OwnerOnly()
     {
@@ -181,7 +228,7 @@ public class LUPickUpRC_RootChangeable : LUPickUpBase_LateUpdatePickUpBase
         isTransferingColliderFlag = false;
     }
 
-    public override void SetPositionAndRotation(Vector3 position, Quaternion rotation)
+    public override void SetPositionAndRotation_OwnerOnly(Vector3 position, Quaternion rotation)
     {
         if (crntCatcherID == -1)
         {
@@ -193,7 +240,7 @@ public class LUPickUpRC_RootChangeable : LUPickUpBase_LateUpdatePickUpBase
             SetParentToCollider(RCCManager.RCCatchers[crntCatcherID]);
             RequestSerialization();
         }
-        base.SetPositionAndRotation(position, rotation);
+        base.SetPositionAndRotation_OwnerOnly(position, rotation);
 
         if (Networking.IsOwner(this.gameObject))
         {
@@ -300,6 +347,10 @@ public class LUPickUpRC_RootChangeable : LUPickUpBase_LateUpdatePickUpBase
             SetParentToCollider(RCCManager.RCCatchers[crntCatcherID]);
         }
         base.OnDeserialization();
+        LUP_CurrentPosition = TransformCache.position;
+        LUP_CurrentRotation = TransformCache.rotation;
+        LastFixed__Position = LUP_CurrentPosition;
+        LastFixed__Rotation = LUP_CurrentRotation;
         //Debug.Log("Recieve");
     }
 }
