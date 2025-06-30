@@ -4,6 +4,7 @@ using UdonSharp;
 using UnityEngine;
 using VRC.SDKBase;
 using VRC.Udon;
+using VRC.Udon.Common;
 using static VRC.SDKBase.VRCPlayerApi;
 
 public class LUPickUpBase_LateUpdatePickUpBase : UdonSharpBehaviour
@@ -121,6 +122,11 @@ public class LUPickUpBase_LateUpdatePickUpBase : UdonSharpBehaviour
             //Debug.Log("onDropped");
             onDropped();
         }
+        if (ownerPlayer == LocalPlayer && UnityEngine.Random.Range(0, 3600) < 1)
+        {
+            //Debug.Log("Randam Sync");
+            RequestSerialization();
+        }
     }
 
     protected void onOwnerTransferred()
@@ -188,13 +194,13 @@ public class LUPickUpBase_LateUpdatePickUpBase : UdonSharpBehaviour
         FetchTrackingData(ownerPlayer);
         MoveObjectByTrackingData();
         CalculateOffsetOnTransform(TransformCache.parent);
-        RequestSerialization();
         dropInitFlag = false;
     }
     protected virtual void onDropped()
     {
         MoveObjectByOnTransformOffset(TransformCache.parent);
         dropFlag = false;
+        if(ownerPlayer == LocalPlayer) RequestSerialization();
     }
 
     protected virtual void FetchTrackingData()
@@ -230,13 +236,13 @@ public class LUPickUpBase_LateUpdatePickUpBase : UdonSharpBehaviour
     {
         if (parentTransform)
         {
-            Debug.Log("Debug MOT InTransformBlock");
+            //Debug.Log("Debug MOT InTransformBlock");
             TransformCache.position = parentTransform.rotation * ObjectLocalPos + parentTransform.position;
             TransformCache.rotation = parentTransform.rotation * ObjectLocalRot;
         }
         else
         {
-            Debug.Log("Debug MOT NullBlock");
+            //Debug.Log("Debug MOT NullBlock");
             TransformCache.localPosition = ObjectLocalPos;
             TransformCache.localRotation = ObjectLocalRot;
         }
@@ -256,13 +262,13 @@ public class LUPickUpBase_LateUpdatePickUpBase : UdonSharpBehaviour
     {
         if (parentTransform)
         {
-            Debug.Log("Debug COT InTransformBlock");
+            //Debug.Log("Debug COT InTransformBlock");
             ObjectLocalPos = Quaternion.Inverse(parentTransform.rotation) * (TransformCache.position - parentTransform.position);
             ObjectLocalRot = Quaternion.Inverse(parentTransform.rotation) * TransformCache.rotation;
         }
         else
         {
-            Debug.Log("Debug COT NullBlock");
+            //Debug.Log("Debug COT NullBlock");
             ObjectLocalPos = TransformCache.localPosition;
             ObjectLocalRot = TransformCache.localRotation;
         }
@@ -346,12 +352,30 @@ public class LUPickUpBase_LateUpdatePickUpBase : UdonSharpBehaviour
     {
         MoveObjectByOnTransformOffset(TransformCache.parent);//Update Position
     }
-    public void DeskTopWalkAround()
-    {
-        RequestSerialization();
-    }
     public override void Interact()
     {
     }
 
+    public override void OnPlayerJoined(VRCPlayerApi player)
+    {
+        if (ownerPlayer != null && ownerPlayer == LocalPlayer) SendCustomEventDelayedSeconds(nameof(delayedRequestSerialization), UnityEngine.Random.value * 60);
+    }
+
+    public override void OnPostSerialization(SerializationResult result)
+    {
+        if (!result.success)
+        {
+            if (ownerPlayer == LocalPlayer) SendCustomEventDelayedSeconds(nameof(delayedRequestSerialization), UnityEngine.Random.value * 20);
+            Debug.Log("Retry Sync");
+        }
+    }
+    public void DeskTopWalkAround()
+    {
+        delayedRequestSerialization();
+    }
+
+    public void delayedRequestSerialization()
+    {
+        if (ownerPlayer == LocalPlayer) RequestSerialization();
+    }
 }
