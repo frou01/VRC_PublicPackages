@@ -112,21 +112,25 @@ public class LUPickUpBase_LateUpdatePickUpBase : UdonSharpBehaviour
             //Debug.Log("onPicked");
             onPicked();
         }
-        else if (dropInitFlag && ownerPlayer == LocalPlayer)
+        else if (ownerPlayer == LocalPlayer)
         {
-            //Debug.Log("onDropInit");
-            onDropInit();
+            if (dropInitFlag)
+            {
+                //Debug.Log("onDropInit");
+                onDropInit_OwnerOnly();
+            }
+            else if (dropFlag)
+            {
+                //Debug.Log("onDropped");
+                onDropped_OwnerOnly();
+            }
+            if (UnityEngine.Random.Range(0, 3600) < 1)
+            {
+                //Debug.Log("Randam Sync");
+                RequestSerialization();
+            }
         }
-        else if (dropFlag)
-        {
-            //Debug.Log("onDropped");
-            onDropped();
-        }
-        if (ownerPlayer == LocalPlayer && UnityEngine.Random.Range(0, 3600) < 1)
-        {
-            //Debug.Log("Randam Sync");
-            RequestSerialization();
-        }
+        
     }
 
     protected void onOwnerTransferred()
@@ -168,7 +172,7 @@ public class LUPickUpBase_LateUpdatePickUpBase : UdonSharpBehaviour
             if (pickInitFlag)
             {
                 //Debug.Log("onPickInit");
-                onPickInit();
+                onPickInit_OwnerOnly();
             }
             MoveObjectByTrackingData();
         }
@@ -179,7 +183,7 @@ public class LUPickUpBase_LateUpdatePickUpBase : UdonSharpBehaviour
         CalculateOffsetOnTransform(TransformCache.parent);
     }
 
-    protected virtual void onPickInit()
+    protected virtual void onPickInit_OwnerOnly()
     {
         MoveObjectByOnTransformOffset(TransformCache.parent);
         CalculateOffsetOnTrackingData();
@@ -189,18 +193,18 @@ public class LUPickUpBase_LateUpdatePickUpBase : UdonSharpBehaviour
         pickInitFlag = false;
     }
 
-    protected virtual void onDropInit()
+    protected virtual void onDropInit_OwnerOnly()
     {
         FetchTrackingData(ownerPlayer);
         MoveObjectByTrackingData();
         CalculateOffsetOnTransform(TransformCache.parent);
+        RequestSerialization();
         dropInitFlag = false;
     }
-    protected virtual void onDropped()
+    protected virtual void onDropped_OwnerOnly()
     {
         MoveObjectByOnTransformOffset(TransformCache.parent);
         dropFlag = false;
-        if(ownerPlayer == LocalPlayer) RequestSerialization();
     }
 
     protected virtual void FetchTrackingData()
@@ -348,17 +352,15 @@ public class LUPickUpBase_LateUpdatePickUpBase : UdonSharpBehaviour
             isOwnerTransferredFlag = true;
         }
     }
+
+    public override void OnPreSerialization()
+    {
+        CalculateOffsetOnBone();
+        CalculateOffsetOnTransform(TransformCache.parent);
+    }
     public override void OnDeserialization()
     {
         MoveObjectByOnTransformOffset(TransformCache.parent);//Update Position
-    }
-    public override void Interact()
-    {
-    }
-
-    public override void OnPlayerJoined(VRCPlayerApi player)
-    {
-        if (ownerPlayer != null && ownerPlayer == LocalPlayer) SendCustomEventDelayedSeconds(nameof(delayedRequestSerialization), UnityEngine.Random.value * 60);
     }
 
     public override void OnPostSerialization(SerializationResult result)
@@ -369,6 +371,14 @@ public class LUPickUpBase_LateUpdatePickUpBase : UdonSharpBehaviour
             Debug.Log("Retry Sync");
         }
     }
+    //public override void Interact()
+    //{
+    //}
+
+    //public override void OnPlayerJoined(VRCPlayerApi player)
+    //{
+    //    if (ownerPlayer != null && ownerPlayer == LocalPlayer) SendCustomEventDelayedSeconds(nameof(delayedRequestSerialization), UnityEngine.Random.value * 60);
+    //}
     public void DeskTopWalkAround()
     {
         delayedRequestSerialization();

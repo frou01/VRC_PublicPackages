@@ -43,9 +43,9 @@ public class LUPickUpRC_RootChangeable : LUPickUpBase_LateUpdatePickUpBase
     }
     [HideInInspector] [SerializeField] public LUP_RC_ColliderManager RCCManager;
 
-    protected override void onPickInit()
+    protected override void onPickInit_OwnerOnly()
     {
-        base.onPickInit();
+        base.onPickInit_OwnerOnly();
         if(ExitWait_To_PickUp)
         {
             ExitWait_To_PickUp = false;
@@ -53,9 +53,9 @@ public class LUPickUpRC_RootChangeable : LUPickUpBase_LateUpdatePickUpBase
             StartExit();//check Collider
         }
     }
-    protected override void onDropInit()
+    protected override void onDropInit_OwnerOnly()
     {
-        base.onDropInit();
+        base.onDropInit_OwnerOnly();
         if (crntCatcher)
         {
             if (crntCatcher.dropTarget)
