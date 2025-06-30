@@ -9,6 +9,7 @@ public class LUPickUpRC_RootChangeable : LUPickUpBase_LateUpdatePickUpBase
     [UdonSynced] protected int crntCatcherID = -1;
     [UdonSynced] bool ExitWait_To_PickUp = false;//Issue collider check
     protected Collider[] colliders;
+    protected int initialCatcherID;
     [SerializeField] public bool Tags_ExcludeExceptMode;
     [SerializeField] public string[] ExceptCatcherTags = new string[0];
     [SerializeField] public string[] PickupTags = new string[0];
@@ -17,6 +18,7 @@ public class LUPickUpRC_RootChangeable : LUPickUpBase_LateUpdatePickUpBase
         base.Start();
         crntCatcher = GetComponentInParent<LUP_RC_CatcherCollider>();
         SetParentToCollider(crntCatcher);
+        initialCatcherID = crntCatcherID;
         colliders = GetComponentsInChildren<Collider>();
     }
     private LUP_RC_CatcherCollider m_crntCatcher;
@@ -60,6 +62,7 @@ public class LUPickUpRC_RootChangeable : LUPickUpBase_LateUpdatePickUpBase
             {
                 moveToDropPoint();
                 CalculateOffsetOnTransform(TransformCache.parent);
+                CalculateOffsetOnTrackingData();
             }
         }
     }
@@ -83,8 +86,13 @@ public class LUPickUpRC_RootChangeable : LUPickUpBase_LateUpdatePickUpBase
                 {
                     return;
                 }
-                SetParentToCollider(catcherCollider);
-                RequestSerialization();
+                if (catcherCollider.isHook ||
+                    this.Pickup.IsHeld ||
+                    isTransferingColliderFlag)
+                {
+                    SetParentToCollider(catcherCollider);
+                    RequestSerialization();
+                }
             }
         }
     }
@@ -177,11 +185,11 @@ public class LUPickUpRC_RootChangeable : LUPickUpBase_LateUpdatePickUpBase
     {
         if (crntCatcherID == -1)
         {
-            ResetParent();
+            SetParentToNull();
         }
         else
         {
-            Debug.Log(crntCatcherID);
+            //Debug.Log(crntCatcherID);
             SetParentToCollider(RCCManager.RCCatchers[crntCatcherID]);
             RequestSerialization();
         }
@@ -201,16 +209,10 @@ public class LUPickUpRC_RootChangeable : LUPickUpBase_LateUpdatePickUpBase
     {
         if (catcherCollider == null)
         {
-            ResetParent();
+            SetParentToNull();
             return;
         }
-        if (ownerPlayer == LocalPlayer &&
-            !catcherCollider.isHook &&
-            !this.Pickup.IsHeld && !isTransferingColliderFlag)
-        {
-            return;
-        }
-        Debug.Log("ReplaceParent");
+        //Debug.Log("ReplaceParent");
         crntCatcher = catcherCollider;
         TransformCache.parent = crntCatcher.transform;
         if (crntCatcher.dropTarget)
@@ -220,16 +222,15 @@ public class LUPickUpRC_RootChangeable : LUPickUpBase_LateUpdatePickUpBase
         CalculateOffsetOnTransform(TransformCache.parent);
         if (crntCatcher.isHook)
         {
-            Debug.Log("Try Drop");
+            //Debug.Log("Try Drop");
             this.Pickup.Drop();
         }
-
     }
 
     protected virtual void moveToDropPoint()
     {
         Transform selectedTarget = null;
-        if(crntCatcher.dropTarget.childCount > 0)
+        if (crntCatcher.transform != crntCatcher.dropTarget && crntCatcher.dropTarget.childCount > 0)
         {
             float minimumScore = -1;
             foreach (Transform snapPoint in crntCatcher.dropTarget)
@@ -244,48 +245,61 @@ public class LUPickUpRC_RootChangeable : LUPickUpBase_LateUpdatePickUpBase
                 }
             }
         }
-        else
+        else if(crntCatcher.dropTarget != null)
         {
+            //Debug.Log("dropTarget " + crntCatcher.dropTarget.name);
             selectedTarget = crntCatcher.dropTarget;
+            //Debug.Log("selectedTarget " + selectedTarget.gameObject.name);
         }
         if(selectedTarget != null)
         {
+            //Debug.Log(TransformCache.position);
+            //Debug.Log(selectedTarget.position);
             TransformCache.position = selectedTarget.position;
             TransformCache.rotation = selectedTarget.rotation;
+            //Debug.Log(TransformCache.position);
         }
     }
 
 
-    public void ResetParent()
+    public void SetParentToNull()
     {
-        this.ResetParent(true);
+        this.SetParentToNull(true);
     }
 
-    public void ResetParent(bool updateSyncingPos)
+    public void SetParentToNull(bool updateSyncingPos)
     {
-        Debug.Log("ResetParent");
+        //Debug.Log("ResetParent");
         TransformCache.parent = null;
-        if(updateSyncingPos) CalculateOffsetOnTransform(TransformCache.parent);
         crntCatcher = null;
+        if (updateSyncingPos) CalculateOffsetOnTransform(TransformCache.parent);
     }
 
     public override void ResetPosition()
     {
+        //Debug.Log(initialCatcherID);
+        if (initialCatcherID == -1)
+        {
+            SetParentToNull();
+        }
+        else
+        {
+            SetParentToCollider(RCCManager.RCCatchers[initialCatcherID]);
+        }
         base.ResetPosition();
-        ResetParent();
     }
     public override void OnDeserialization()
     {
         if (crntCatcherID == -1)
         {
-            ResetParent(false);
+            SetParentToNull(false);
         }
         else
         {
-            Debug.Log(crntCatcherID);
+            //Debug.Log(crntCatcherID);
             SetParentToCollider(RCCManager.RCCatchers[crntCatcherID]);
         }
         base.OnDeserialization();
-        Debug.Log("Recieve");
+        //Debug.Log("Recieve");
     }
 }
