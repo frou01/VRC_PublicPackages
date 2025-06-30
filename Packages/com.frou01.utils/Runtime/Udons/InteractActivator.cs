@@ -21,6 +21,10 @@ public class InteractActivator : UdonSharpBehaviour
             colliders = new Collider[1];
             colliders[0] = GetComponent<Collider>();
         }
+        if(udons.Length > 0)
+        {
+            udons = this.GetComponents<UdonBehaviour>();
+        }
         if (Networking.LocalPlayer.IsUserInVR())
         {
             currentState = true;
@@ -68,5 +72,12 @@ public class InteractActivator : UdonSharpBehaviour
 
     public override void Interact()
     {
+    }
+
+
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(transform.position, proximity);
     }
 }
