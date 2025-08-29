@@ -3,49 +3,48 @@
 title: LUPickUp main loop
 ---
 
+
 flowchart TD
 	StartLoop[/LateUpdateLoop\] -->
-	isInit{is init = true}
+	isInit{startFlag == true}
 
 	isInit --NO--> EndLoop
 
 	isInit --YES-->
-	ispostStartFrag{is postStartFrag = true} --NO-->
-	IsObjectReady{is ObjectReady} --YES-->
-	postStartFrag[[SetOwnerPlayer]] -->
+	ispostStartFrag{postStartFrag == true} --NO-->
+	IsObjectReady{Networking.IsObjectReady} --YES-->
+	postStartFrag[[Set prevOwner & ownerPlayer]] -->
 	EndLoop[\Loop/]
 
-
-	IsObjectReady --NO-->
-	EndLoop
-
-	Init[[Init]] -.-
-	isInit
+	IsObjectReady --NO--> EndLoop
 
 	ispostStartFrag --YES-->
-	isPicked{is Picked = true}
+	OwnerTransferred{isOwnerTransferredFlag == true} --YES-->
+	onOwnerTransferred[[onOwnerTransferred]] -->
+	ContinuePickedCheck
 
-	isPicked --NO--> 
-	isOwnerOnDrop
+	OwnerTransferred --NO--> ContinuePickedCheck
 
-	isDropping --NO-->
+	ContinuePickedCheck -->
+	isPicked{pickedFlag == true}
+
+	isPicked --NO--> isOwnerOnDrop{ownerPlayer == LocalPlayer}
+
+	isOwnerOnDrop --YES-->
+	isdropInitFlag{dropInitFlag == true} --YES-->
+	ondropInit[[onDropInit_OwnerOnly]] --> EndLoop
+
+	isdropInitFlag --NO-->
+	isDropFlag{dropFlag == true} --YES-->
+	onDropped[[onDropped]] --> EndLoop
+
+	isDropFlag --NO--> EndLoop
+
+	isOwnerOnDrop --NO-->
 	EndLoop
 
-	isOwnerOnDrop{isOwner} --NO-->
-	isDropping
-
-	isdropInitFlag{is dropInitFlag = true} -.NO.->
-	isDropping{is DropFlag = true}
-	
-	isDropping --YES--> onDropped[[onDropped]] --> EndLoop
-
-	isPicked --YES--> 
-	onPicked[[OnPicked]] -->
-	EndLoop
-
-	isOwnerOnDrop --YES--> 
-	isdropInitFlag --YES--> 
-	ondropInit[[ondropInit]] --> EndLoop
+	isPicked --YES-->
+	onPicked[[onPicked]] --> EndLoop
 ```
 ```mermaid
 flowchart TD
@@ -53,7 +52,7 @@ flowchart TD
 		
 
 		MoveObjectTransformOnDropped[[Move Object Transform<br> on Dropped transform]] -->
-		SetdropFlag_True
+		Set_dropFlag_True
 
 	end
 	subgraph "ondropInit"
@@ -64,7 +63,7 @@ flowchart TD
 		FetchTrackingDataOnDrop -->
 		MoveObjectTransform_ByTrackingDataOnDrop[[Move Object Transform<br> by TrackingData]] -->
 		CalculateOffsetOnPlayerOnDrop[[Calculate Offset<br> On Dropped transform]] -->
-		SetdropInitFlag_True -->
+		Set_dropInitFlag_True -->
 		SyncOndropInit((sync))
 	end
 	

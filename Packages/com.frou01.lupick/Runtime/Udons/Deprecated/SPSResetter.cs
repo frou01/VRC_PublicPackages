@@ -7,8 +7,8 @@ using VRC.Udon.Common.Interfaces;
 
 public class SPSResetter : UdonSharpBehaviour
 {
-    [SerializeField]UdonBehaviour target;
-    [SerializeField]UdonBehaviour[] targets;
+    [SerializeField] LUPickUpBase_LateUpdatePickUpBase target;
+    [SerializeField] LUPickUpBase_LateUpdatePickUpBase[] targets;
     void Start()
     {
         
@@ -22,16 +22,12 @@ public class SPSResetter : UdonSharpBehaviour
         //target.gameObject.SetActive(true);
         if(target != null)
         {
-            if (target.gameObject.GetComponent<SmartPickupSharpRootChangeable>() != null)
-                target.gameObject.GetComponent<SmartPickupSharpRootChangeable>().setIsEnable(true);
-            target.SendCustomEvent(nameof(SmartPickupSharpRootChangeable.ResetPosition));
+            if(Networking.IsOwner(target.gameObject)) target.ResetPosition();
         }
 
-        foreach (UdonBehaviour anTarget in targets)
+        foreach (LUPickUpBase_LateUpdatePickUpBase anTarget in targets)
         {
-            if (anTarget.gameObject.GetComponent<SmartPickupSharpRootChangeable>() != null)
-                anTarget.gameObject.GetComponent<SmartPickupSharpRootChangeable>().setIsEnable(true);
-            anTarget.SendCustomEvent(nameof(SmartPickupSharpRootChangeable.ResetPosition));
+            if (Networking.IsOwner(anTarget.gameObject)) anTarget.ResetPosition();
         }
     }
 }
