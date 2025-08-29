@@ -84,7 +84,8 @@ public class LUPickUpBase_LateUpdatePickUpBase : UdonSharpBehaviour
         {
             if (Networking.IsObjectReady(gameObject))
             {
-                prevOwner = ownerPlayer = Networking.GetOwner(gameObject);
+                if (isLocal) prevOwner = ownerPlayer = LocalPlayer;
+                else prevOwner = ownerPlayer = Networking.GetOwner(gameObject);
                 postStartFrag = true;
             }
             return;
@@ -343,7 +344,11 @@ public class LUPickUpBase_LateUpdatePickUpBase : UdonSharpBehaviour
     public override void OnOwnershipTransferred(VRC.SDKBase.VRCPlayerApi player)
     {
         Debug.Log("OwnerTransfer");
-        if (isLocal) return;
+        if (isLocal)
+        {
+            prevOwner = ownerPlayer = LocalPlayer;
+            return;
+        }
         Debug.Log("transfered from " + ownerPlayer.playerId + "to " + player.playerId);
         prevOwner = ownerPlayer;
         ownerPlayer = player;
