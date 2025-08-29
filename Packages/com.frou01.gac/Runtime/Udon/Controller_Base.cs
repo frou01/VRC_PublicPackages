@@ -185,12 +185,9 @@ public class Controller_Base : UdonSharpBehaviour
     }
     public override void OnPickup()
     {
-        if (!locked)
-        {
-            this.enabled = true;
-            onPick = true;
-            isPicked = true;
-        }
+        this.enabled = true;
+        onPick = true;
+        isPicked = true;
     }
     public override void OnDrop()
     {
@@ -232,15 +229,10 @@ public class Controller_Base : UdonSharpBehaviour
                 netWork_Updating = false;
                 RequestSerialization();
             }
-            if (locked)
-            {
-                isPicked = false;
-                onPick = false;
-            }
         }
         if (isPicked)
         {
-            if (isowner) onPicked();
+            if (isowner && !locked) onPicked();
         }
         else if (!isowner)
         {
