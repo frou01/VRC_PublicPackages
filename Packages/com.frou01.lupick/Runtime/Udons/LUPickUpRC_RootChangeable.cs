@@ -44,31 +44,31 @@ public class LUPickUpRC_RootChangeable : LUPickUpBase_LateUpdatePickUpBase
     [HideInInspector] [SerializeField] public LUP_RC_ColliderManager RCCManager;
 
 
-    Vector3 LastFixed__Position;
-    Vector3 LUP_CurrentPosition;
-    Quaternion LastFixed__Rotation;
-    Quaternion LUP_CurrentRotation;
-    public override void PostLateUpdate()
-    {
-        base.PostLateUpdate();
+    //Vector3 LastFixed__Position;
+    //Vector3 LUP_CurrentPosition;
+    //Quaternion LastFixed__Rotation;
+    //Quaternion LUP_CurrentRotation;
+    //public override void PostLateUpdate()
+    //{
+    //    base.PostLateUpdate();
 
-        if (pickedFlag)
-        {
-            LUP_CurrentPosition = TransformCache.position;
-            LUP_CurrentRotation = TransformCache.rotation;
-        }
-    }
-    protected virtual void FixedUpdate()
-    {
-        if (pickedFlag)
-        {
-            TransformCache.position = LastFixed__Position;
-            TransformCache.rotation = LastFixed__Rotation;
-            PickupRigidBody.Move(LUP_CurrentPosition, LUP_CurrentRotation);
-            LastFixed__Position = LUP_CurrentPosition;
-            LastFixed__Rotation = LUP_CurrentRotation;
-        }
-    }
+    //    if (pickedFlag)
+    //    {
+    //        LUP_CurrentPosition = TransformCache.position;
+    //        LUP_CurrentRotation = TransformCache.rotation;
+    //    }
+    //}
+    //protected virtual void FixedUpdate()
+    //{
+    //    if (pickedFlag)
+    //    {
+    //        TransformCache.position = LastFixed__Position;
+    //        TransformCache.rotation = LastFixed__Rotation;
+    //        PickupRigidBody.Move(LUP_CurrentPosition, LUP_CurrentRotation);
+    //        LastFixed__Position = LUP_CurrentPosition;
+    //        LastFixed__Rotation = LUP_CurrentRotation;
+    //    }
+    //}
     protected override void onPickInit_OwnerOnly()
     {
         base.onPickInit_OwnerOnly();
@@ -95,10 +95,10 @@ public class LUPickUpRC_RootChangeable : LUPickUpBase_LateUpdatePickUpBase
             crntCatcher = null;
             StartExit();//check Collider
         }
-        LUP_CurrentPosition = TransformCache.position;
-        LUP_CurrentRotation = TransformCache.rotation;
-        LastFixed__Position = LUP_CurrentPosition;
-        LastFixed__Rotation = LUP_CurrentRotation;
+        //LUP_CurrentPosition = TransformCache.position;
+        //LUP_CurrentRotation = TransformCache.rotation;
+        //LastFixed__Position = LUP_CurrentPosition;
+        //LastFixed__Rotation = LUP_CurrentRotation;
     }
     protected override void onDropInit_OwnerOnly()
     {
@@ -347,10 +347,10 @@ public class LUPickUpRC_RootChangeable : LUPickUpBase_LateUpdatePickUpBase
             SetParentToCollider(RCCManager.RCCatchers[crntCatcherID]);
         }
         base.OnDeserialization();
-        LUP_CurrentPosition = TransformCache.position;
-        LUP_CurrentRotation = TransformCache.rotation;
-        LastFixed__Position = LUP_CurrentPosition;
-        LastFixed__Rotation = LUP_CurrentRotation;
+        //LUP_CurrentPosition = TransformCache.position;
+        //LUP_CurrentRotation = TransformCache.rotation;
+        //LastFixed__Position = LUP_CurrentPosition;
+        //LastFixed__Rotation = LUP_CurrentRotation;
         //Debug.Log("Recieve");
     }
 }
