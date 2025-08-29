@@ -6,14 +6,17 @@ using VRC.Udon;
 
 public class InteractActivator : UdonSharpBehaviour
 {
+    public Transform Head;
     public Transform handL;
     public Transform handR;
 
-    [SerializeField]Collider[] colliders;
-    [SerializeField] VRC_Pickup[] pickups;
-    [SerializeField] UdonBehaviour[] udons;
+    [SerializeField] Collider[] colliders;
+    [SerializeField] public VRC_Pickup[] pickups;
+    [SerializeField] public UdonBehaviour[] udons;
     [SerializeField] float proximity;
-    bool currentState;
+    [SerializeField] Transform[] BaseTransforms = new Transform[0];
+    public bool currentState;
+    bool isVR;
     void Start()
     {
         if(colliders.Length <= 0 && pickups.Length <= 0 && udons.Length <= 0)
@@ -21,34 +24,60 @@ public class InteractActivator : UdonSharpBehaviour
             colliders = new Collider[1];
             colliders[0] = GetComponent<Collider>();
         }
-        if(udons.Length > 0)
+        isVR = Networking.LocalPlayer.IsUserInVR();
+        currentState = true;
+        changeColliderState(false);
+        if (!isVR)
         {
-            udons = this.GetComponents<UdonBehaviour>();
+            foreach (Component com in colliders)
+            {
+                if (com.GetType() ==  typeof(SphereCollider)) ((SphereCollider)com).radius = proximity;
+                if (com.GetType() == typeof(CapsuleCollider)) ((CapsuleCollider)com).radius = proximity;
+            }
+            foreach (Component com in pickups)
+            {
+                if (com.GetComponent<SphereCollider>()) com.GetComponent<SphereCollider>().radius = proximity;
+                if (com.GetComponent<CapsuleCollider>()) com.GetComponent<CapsuleCollider>().radius = proximity;
+            }
+            foreach (Component com in udons)
+            {
+                if (com.GetComponent<SphereCollider>()) com.GetComponent<SphereCollider>().radius = proximity;
+                if (com.GetComponent<CapsuleCollider>()) com.GetComponent<CapsuleCollider>().radius = proximity;
+            }
+            proximity = proximity + 2;
         }
-        if (Networking.LocalPlayer.IsUserInVR())
+        if (BaseTransforms.Length == 0)
         {
-            currentState = true;
-            changeColliderState(false);
-        }
-        else
-        {
-            this.enabled = false;
+            BaseTransforms = new Transform[] {this.transform};
         }
     }
+    Vector3 pos;
+    bool nextState = false;
     public override void PostLateUpdate()
     {
-        Vector3 pos = transform.position;
-        if (Vector3.Distance(handL.position, pos) < proximity ||
-            Vector3.Distance(handR.position, pos) < proximity)
+        nextState = false;
+        foreach (Transform baseTransform in BaseTransforms)
         {
-            changeColliderState(true);
+            pos = baseTransform.position;
+            if (!isVR)
+            {
+                if (Vector3.Distance(Head.position, pos) < proximity + 2)
+                {
+                    nextState = true;
+                }
+            }
+            else
+            {
+                if (Vector3.Distance(handL.position, pos) < proximity ||
+                    Vector3.Distance(handR.position, pos) < proximity)
+                {
+                    nextState = true;
+                }
+            }
         }
-        else
-        {
-            changeColliderState(false);
-        }
+        changeColliderState(nextState);
     }
-    void changeColliderState(bool state)
+    public void changeColliderState(bool state)
     {
         if(currentState == state)
         {
@@ -78,6 +107,54 @@ public class InteractActivator : UdonSharpBehaviour
     private void OnDrawGizmosSelected()
     {
         Gizmos.color = Color.green;
-        Gizmos.DrawWireSphere(transform.position, proximity);
+        if (BaseTransforms.Length == 0)
+        {
+            pos = this.transform.position;
+            Gizmos.DrawWireSphere(pos, proximity);
+            if (colliders.Length <= 0 && pickups.Length <= 0 && udons.Length <= 0)
+            {
+                Gizmos.color = new Color(1, 0, 0, 0.4f);
+
+                Gizmos.DrawSphere(pos, proximity);
+            }
+            foreach (Component com in colliders)
+            {
+                Gizmos.DrawLine(pos, com.transform.position);
+            }
+            foreach (Component com in pickups)
+            {
+                Gizmos.DrawLine(pos, com.transform.position);
+            }
+            foreach (Component com in udons)
+            {
+                Gizmos.DrawLine(pos, com.transform.position);
+            }
+        }
+        else
+        {
+            foreach (Transform baseTransform in BaseTransforms)
+            {
+                pos = baseTransform.position;
+                Gizmos.DrawWireSphere(pos, proximity);
+                if (colliders.Length <= 0 && pickups.Length <= 0 && udons.Length <= 0)
+                {
+                    Gizmos.color = new Color(1, 0, 0, 0.4f);
+
+                    Gizmos.DrawSphere(pos, proximity);
+                }
+                foreach (Component com in colliders)
+                {
+                    Gizmos.DrawLine(pos, com.transform.position);
+                }
+                foreach (Component com in pickups)
+                {
+                    Gizmos.DrawLine(pos, com.transform.position);
+                }
+                foreach (Component com in udons)
+                {
+                    Gizmos.DrawLine(pos, com.transform.position);
+                }
+            }
+        }
     }
 }

@@ -10,6 +10,7 @@ public class PlayerChaser : UdonSharpBehaviour
     VRCPlayerApi playerApi;
     public Transform HandL;
     public Transform HandR;
+    public Transform Head;
     [System.NonSerialized]public bool PlayerPositionScriptControlMode;
     void Start()
     {
@@ -41,6 +42,10 @@ public class PlayerChaser : UdonSharpBehaviour
             trackingData = playerApi.GetTrackingData(VRCPlayerApi.TrackingDataType.LeftHand);
             HandL.position = trackingData.position;
             HandL.rotation = trackingData.rotation;
+
+            trackingData = playerApi.GetTrackingData(VRCPlayerApi.TrackingDataType.Head);
+            Head.position = trackingData.position;
+            Head.rotation = trackingData.rotation;
         }
 
     }
