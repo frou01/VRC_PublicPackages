@@ -290,9 +290,12 @@ public class LUPickUpBase_LateUpdatePickUpBase : UdonSharpBehaviour
     }
     public override void OnDrop()
     {
-        pickedFlag = false;
-        dropInitFlag = true;
-        dropFlag = true;
+        if (ownerPlayer == LocalPlayer)
+        {
+            pickedFlag = false;
+            dropInitFlag = true;
+            dropFlag = true;
+        }
     }
     public override void OnPickupUseDown()
     {
