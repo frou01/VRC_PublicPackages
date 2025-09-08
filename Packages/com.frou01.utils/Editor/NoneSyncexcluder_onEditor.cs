@@ -11,7 +11,7 @@ using VRC.SDKBase.Network;
 using VRC.Udon;
 using static VRC.SDKBase.Networking;
 
-public class NoneSyncexcluder_onEditor : IProcessSceneWithReport , IVRCSDKBuildRequestedCallback
+public class NoneSyncexcluder_onEditor// : IProcessSceneWithReport , IVRCSDKBuildRequestedCallback
 {
     public int callbackOrder => 0;
 
@@ -57,7 +57,7 @@ public class NoneSyncexcluder_onEditor : IProcessSceneWithReport , IVRCSDKBuildR
                 {
                     if (anUdon.SyncMethod != SyncType.None)
                     {
-                        Debug.Log(pair.gameObject.name);
+                        //Debug.Log(pair.gameObject.name);
                         OK = true;
                     }
                 }

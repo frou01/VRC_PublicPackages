@@ -34,11 +34,6 @@ public class SPS_BuildProcess : IProcessSceneWithReport
         {
             foreach (GameObject obj in scene.GetRootGameObjects())
             {
-                if (obj.GetComponent<SmartPickupSharpRootChangeable>() != null)
-                {
-                    SmartPickupSharpRootChangeable SPS = obj.GetComponent<SmartPickupSharpRootChangeable>();
-                    SPS.spsManager = RCCManager;
-                }
                 if (obj.GetComponent<LUPickUpRC_RootChangeable>() != null)
                 {
                     LUPickUpRC_RootChangeable LPRC = obj.GetComponent<LUPickUpRC_RootChangeable>();
@@ -66,11 +61,6 @@ public class SPS_BuildProcess : IProcessSceneWithReport
         for (int id = 0;id< transform.childCount;id++)
         {
             GameObject obj = transform.GetChild(id).gameObject;
-            if (obj.GetComponent<SmartPickupSharpRootChangeable>() != null)
-            {
-                SmartPickupSharpRootChangeable SPS = obj.GetComponent<SmartPickupSharpRootChangeable>();
-                SPS.spsManager = RCCManager;
-            }
             if (obj.GetComponent<LUPickUpRC_RootChangeable>() != null)
             {
                 LUPickUpRC_RootChangeable LPRC = obj.GetComponent<LUPickUpRC_RootChangeable>();

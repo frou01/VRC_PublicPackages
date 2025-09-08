@@ -284,18 +284,6 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2008542628685914378}
     m_Modifications:
-    - target: {fileID: -8636690439145330702, guid: 189811ef79eaffa409bca7a4de5ea0f4,
-        type: 3}
-      propertyPath: serializationData.Prefab
-      value: 
-      objectReference: {fileID: -8636690439145330702, guid: 189811ef79eaffa409bca7a4de5ea0f4,
-        type: 3}
-    - target: {fileID: -7034265591577943557, guid: 189811ef79eaffa409bca7a4de5ea0f4,
-        type: 3}
-      propertyPath: serializationData.Prefab
-      value: 
-      objectReference: {fileID: -7034265591577943557, guid: 189811ef79eaffa409bca7a4de5ea0f4,
-        type: 3}
     - target: {fileID: 1503453363375790352, guid: 189811ef79eaffa409bca7a4de5ea0f4,
         type: 3}
       propertyPath: preset_Manager
@@ -307,12 +295,6 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 1503453363375790352, guid: 189811ef79eaffa409bca7a4de5ea0f4,
         type: 3}
-    - target: {fileID: 3162968765541321610, guid: 189811ef79eaffa409bca7a4de5ea0f4,
-        type: 3}
-      propertyPath: serializationData.Prefab
-      value: 
-      objectReference: {fileID: 3162968765541321610, guid: 189811ef79eaffa409bca7a4de5ea0f4,
-        type: 3}
     - target: {fileID: 4046830806332593594, guid: 189811ef79eaffa409bca7a4de5ea0f4,
         type: 3}
       propertyPath: m_Name
@@ -321,11 +303,6 @@ PrefabInstance:
     - target: {fileID: 4046830806332593594, guid: 189811ef79eaffa409bca7a4de5ea0f4,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 4046830806332593597, guid: 189811ef79eaffa409bca7a4de5ea0f4,
-        type: 3}
-      propertyPath: m_RootOrder
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 4046830806332593597, guid: 189811ef79eaffa409bca7a4de5ea0f4,
@@ -378,17 +355,6 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 5324619032453043482, guid: 189811ef79eaffa409bca7a4de5ea0f4,
-        type: 3}
-      propertyPath: preset_Manager
-      value: 
-      objectReference: {fileID: 8238529961585282131}
-    - target: {fileID: 5324619032453043482, guid: 189811ef79eaffa409bca7a4de5ea0f4,
-        type: 3}
-      propertyPath: serializationData.Prefab
-      value: 
-      objectReference: {fileID: 5324619032453043482, guid: 189811ef79eaffa409bca7a4de5ea0f4,
-        type: 3}
     - target: {fileID: 6737386046704797493, guid: 189811ef79eaffa409bca7a4de5ea0f4,
         type: 3}
       propertyPath: m_TagString
