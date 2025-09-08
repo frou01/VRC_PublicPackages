@@ -1,3 +1,4 @@
+# if UNITY_EDITOR
 using UnityEngine;
 using UnityEditor;
 using Cinemachine;
@@ -109,3 +110,4 @@ public class ParallelPathGenerator : EditorWindow
         }
     }
 }
+# endif
