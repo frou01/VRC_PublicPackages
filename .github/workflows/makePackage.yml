@@ -1,0 +1,31 @@
+name: "Release by Tag"
+
+on:
+  push:
+    tags:
+      - v\d+\.\d+\.\d+
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - run: |
+          mkdir ./dist
+
+      - uses: natsuneko-laboratory/create-vpmpackage@v1.1.1 # You should use SHA hash
+        with:
+          packages: |
+            Packages/com.frou01.gac/package.json
+            Packages/com.frou01.lupick/package.json
+            Packages/com.frou01.utils/package.json
+            Packages/com.frou01.wvf/package.json
+          outputs: |
+            dist/gac.zip
+            dist/lupick.zip
+            dist/utils.zip
+            dist/wvf.zip
