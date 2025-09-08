@@ -3,29 +3,23 @@ name: "Release by Tag"
 on:
   push:
     tags:
-      - v\d+\.\d+\.\d+
+      - r\d+\.\d+\.\d+
   workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
         with:
           lfs: true
 
       - run: |
           mkdir ./dist
 
-      - uses: natsuneko-laboratory/create-vpmpackage@v1.1.1 # You should use SHA hash
+      - uses: natsuneko-laboratory/create-vpmpackage@9fcf8a75b213fa2c2a57d9b8113fcb827f5734f7 #v1.1.1
         with:
           packages: |
             Packages/com.frou01.gac/package.json
-            Packages/com.frou01.lupick/package.json
-            Packages/com.frou01.utils/package.json
-            Packages/com.frou01.wvf/package.json
           outputs: |
             dist/gac.zip
-            dist/lupick.zip
-            dist/utils.zip
-            dist/wvf.zip
