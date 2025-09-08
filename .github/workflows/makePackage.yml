@@ -17,7 +17,7 @@ jobs:
       - run: |
           mkdir ./dist
 
-      - uses: natsuneko-laboratory/create-vpmpackage@9fcf8a75b213fa2c2a57d9b8113fcb827f5734f7 #v1.1.1
+      - uses: natsuneko-laboratory/create-vpmpackage@493657e038d11a1cd960560aaed46074fc2facaa #v1.2.0
         with:
           packages: |
             Packages/com.frou01.gac/package.json
